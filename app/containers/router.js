@@ -7,7 +7,7 @@ import { Router, Scene } from 'react-native-router-flux';
 import CreateProfile from '../components/createProfile/CreateProfileContainer';
 import Calendar from '../components/calendar/CalendarViewContainer';
 import SearchWingman from '../components/searchWingman/SearchWingman';
-//import LoginWithFacebook from '../components/login/LoginWithFacebook';
+import LoginWithFacebook from '../components/login/FacebookLogin';
 //<Scene key="LoginWithFacebook" inTab={false} component={LoginWithFacebook}  hideNavBar />
 
 import {
@@ -32,7 +32,8 @@ export default class router extends Component {
     return (
         <Router>
           <Scene key="root">
-            <Scene key="createProfile" inTab={false} initial component={CreateProfile} hideNavBar />
+            <Scene key="LoginWithFacebook" initial component={LoginWithFacebook} hideNavBar/>
+            <Scene key="createProfile" inTab={false} component={CreateProfile} hideNavBar />
 
             <Scene key="calendar" inTab={false} component={Calendar} hideNavBar/>
             <Scene key="tabBar" tabs hideNavBar inTab={true} tabBarStyle={ style.tabBarStyle } >
