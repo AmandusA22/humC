@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { Router, Scene } from 'react-native-router-flux';
 //import Feeds from ''
-// import CodeScreen from '../components/login/CodeScreenContainer';
-// import LoginForm from '../components/login/LoginFormContainer';
-// import PasswordScreen from '../components/PasswordScreenContainer';
+//import CodeScreen from '../components/login/CodeScreenContainer';
+//import LoginForm from '../components/login/LoginFormContainer';
+//import PasswordScreen from '../components/PasswordScreenContainer';
 import CreateProfile from '../components/createProfile/CreateProfileContainer';
 import Calendar from '../components/calendar/CalendarViewContainer';
 import SearchWingman from '../components/searchWingman/SearchWingman';
@@ -30,26 +30,21 @@ export default class router extends Component {
 
   render() {
     return (
-      <Router>
-        <Scene key="ROOT" passProps>
-          <Scene key="createProfile" inTab={false} component={CreateProfile} initial hideNavBar />
-          <Scene key="calendar" inTab={false} component={Calendar} />
-          <Scene key="tabBar" tabs hideNavBar inTab={true} tabBarStyle={ style.tabBarStyle } >
-          <Scene key="calendarTab" inital="calendarTab" title="Calendar" icon={TabIcon}>
+        <Router>
+          <Scene key="root">
+            <Scene key="createProfile" inTab={false} initial component={CreateProfile} hideNavBar />
 
-            { /*<Scene
-              key="calendarTab"
-              title="Calendar"
-              icon={TabIcon}
-            >*/ }
-              <Scene key="CalendarTab" title="Calendar" component={Calendar} icon={TabIcon} hideNavBar />
-              <Scene key="searchWingman" component={SearchWingman} icon={TabIcon} hideNavBar />
+            <Scene key="calendar" inTab={false} component={Calendar} hideNavBar/>
+            <Scene key="tabBar" tabs hideNavBar inTab={true} tabBarStyle={ style.tabBarStyle } >
+            <Scene key="calendarTab" inital="calendarTab" title="Calendar" icon={TabIcon}>
+                <Scene key="CalendarTab" title="Calendar" component={Calendar} icon={TabIcon} hideNavBar />
+                <Scene key="searchWingman" component={SearchWingman} icon={TabIcon} hideNavBar />
+              </Scene>
+              <Scene key="settings" title='Settings' icon={TabIcon} component={CreateProfile} hideNavBar />
             </Scene>
-            {/*</Scene>*/}
-            <Scene key="settings" title='Settings' icon={TabIcon} component={CreateProfile} hideNavBar />
+
           </Scene>
-        </Scene>
-      </Router>
+        </Router>
     );
   }
 }
@@ -63,3 +58,14 @@ let style = StyleSheet.create({
   //  opacity        : 1
   }
 });
+
+//             <Scene key="createProfile" inTab={false} component={CreateProfile}  />
+
+// <Scene key="calendar" inTab={false} component={Calendar} />
+// <Scene key="tabBar" tabs hideNavBar inTab={true} tabBarStyle={ style.tabBarStyle } >
+// <Scene key="calendarTab" inital="calendarTab" title="Calendar" icon={TabIcon}>
+//     <Scene key="CalendarTab" title="Calendar" component={Calendar} icon={TabIcon} hideNavBar />
+//     <Scene key="searchWingman" component={SearchWingman} icon={TabIcon} hideNavBar />
+//   </Scene>
+//   <Scene key="settings" title='Settings' icon={TabIcon} component={CreateProfile} hideNavBar />
+// </Scene>

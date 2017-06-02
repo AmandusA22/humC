@@ -1,6 +1,8 @@
 package com.humanconnection;
 
 import com.facebook.react.ReactActivity;
+import com.facebook.reactnative.androidsdk.FBSDKPackage;
+import com.magus.fblogin.FacebookLoginPackage;
 
 public class MainActivity extends ReactActivity {
 

@@ -20,7 +20,7 @@
  };
  const firebaseApp = firebase.initializeApp(firebaseConfig);
 
-export default class Wingman extends Component {
+export default class humanConnection extends Component {
   render() {
     return (
       <App />
@@ -47,4 +47,4 @@ export default class Wingman extends Component {
 //   },
 // });
 
-AppRegistry.registerComponent('Wingman', () => Wingman);
+AppRegistry.registerComponent('humanConnection', () => humanConnection);
