@@ -17,6 +17,8 @@ import Camera from 'react-native-camera';
 import TakePicture from './TakePicture';
 import RequestService from '../../services/RequestService';
 import {Actions} from 'react-native-router-flux'
+import { connect } from 'react-redux';
+
 
 
 const styles = StyleSheet.create({
@@ -127,7 +129,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export default class CreateProfile extends Component {
+export class CreateProfile extends Component {
 
   constructor(props) {
     super(props);
@@ -139,6 +141,23 @@ export default class CreateProfile extends Component {
       showImagePicker: false,
       showTakePicture: false,
     };
+  }
+
+  componentDidMount() {
+  //  super.componentDidMount()
+    this.setStateFromRedux()
+  }
+
+  setStateFromRedux = () => {
+    const userProps = this.props.reduxStoreProps.user
+    if (userProps.name) {
+      console.log('in name')
+      this.setState({name: userProps.name})
+    }
+    if (userProps.profile_picture) {
+      console.log('in image')
+      this.updateImage(userProps.profile_picture)
+    }
   }
 
   pickers = () => {
@@ -272,6 +291,7 @@ export default class CreateProfile extends Component {
     </View>
 
   updateImage = (image) => {
+    console.log('update iage')
     this.setState({ image, showImagePicker: false, showTakePicture: false });
     // console.log(image);
   }
@@ -332,3 +352,9 @@ export default class CreateProfile extends Component {
       );
     }
   }
+
+  const mapStateToProps = (store) => ({
+    reduxStoreProps: store,
+  });
+
+  export default connect(mapStateToProps)(CreateProfile);
