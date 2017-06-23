@@ -1,9 +1,10 @@
-import FBSDK, {LoginButton, LoginManager, AccessToken } from 'react-native-fbsdk';
-import {View, StyleSheet } from 'react-native';
+import FBSDK, { LoginButton, LoginManager, AccessToken } from 'react-native-fbsdk';
+import { View, StyleSheet } from 'react-native';
 import React, { Component } from 'react';
-import { Actions } from 'react-native-router-flux'
+import { Actions } from 'react-native-router-flux';
 import { connect } from 'react-redux';
-import { saveUserInfoAction } from '../../redux/modules/saveUserInfo'
+import { saveUserInfoAction } from '../../redux/modules/saveUserInfo';
+import { saveAppStateAction } from '../../redux/modules/saveAppState';
 
 const styles = StyleSheet.create({
   view: {
@@ -41,10 +42,11 @@ export class Login extends Component {
     const that = this
     firebase.database().ref(`users/${facebookData.uid}`).once('value').then(function(data) {
       if (data.val().age) {
-        this.goToTabMenu();
+        that.goToTabMenu(facebookData.uid);
       } else {
         const saveUserData = { name: facebookData.displayName,
-          profile_picture: facebookData.photoURL };
+          profile_picture: facebookData.photoURL,
+          id: facebookData.uid };
         firebase.database().ref(`users/${facebookData.uid}`).set(saveUserData).then(
           that.handleNewUser(saveUserData),
         );
@@ -85,11 +87,17 @@ export class Login extends Component {
     this.goToUserSetup();
   }
 
-  saveToRedux(saveData) {
+  saveToRedux = (saveData) => {
     return this.props.dispatch(saveUserInfoAction(saveData))
   }
 
-  goToTabMenu() {
+  goToTabMenu = (id) => {
+    const that = this;
+    firebase.database().ref(`users/${id}`).once('value').then((data) => {
+        that.saveToRedux(data.val());
+        that.props.dispatch(saveAppStateAction({ tabBar: true }))
+        Actions.tabBar();
+      })
 
   }
 

@@ -16,10 +16,10 @@ import CameraRollPicker from './CameraRollPicker';
 import Camera from 'react-native-camera';
 import TakePicture from './TakePicture';
 import RequestService from '../../services/RequestService';
-import {Actions} from 'react-native-router-flux'
+import { Actions } from 'react-native-router-flux'
 import { connect } from 'react-redux';
-
-
+import { saveUserInfoAction } from '../../redux/modules/saveUserInfo'
+import * as firebase from 'firebase';
 
 const styles = StyleSheet.create({
   underline: {
@@ -59,10 +59,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     lineHeight: 20,
     height: 150,
-    // width: '60%',
     width: '97%',
-
-    //borderColor: 'black',
   },
   standardText: {
     lineHeight: 20,
@@ -150,13 +147,12 @@ export class CreateProfile extends Component {
 
   setStateFromRedux = () => {
     const userProps = this.props.reduxStoreProps.user
-    if (userProps.name) {
-      console.log('in name')
-      this.setState({name: userProps.name})
-    }
-    if (userProps.profile_picture) {
-      console.log('in image')
-      this.updateImage(userProps.profile_picture)
+    for (const key in userProps) {
+      if (key === 'profile_picture') {
+        this.updateImage(userProps.profile_picture)
+      } else {
+        this.setState({ [key]: userProps[key] })
+      }
     }
   }
 
@@ -306,6 +302,16 @@ export class CreateProfile extends Component {
   }
 
   sendCreateProfile = () => {
+    const saveData = {
+      age: this.state.age,
+      interest: this.state.interest,
+      gender: this.state.gender,
+      image: this.state.image,
+      name: this.state.name,
+      description: this.state.description,
+    };
+    firebase.database().ref(`users/${this.props.reduxStoreProps.user.id}`).update(saveData)
+    this.props.dispatch(saveUserInfoAction(saveData))
 
     if (!this.props.inTab) {
       Actions.calendar()
