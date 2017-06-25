@@ -36,7 +36,10 @@ export class Calendar extends Component {
      console.log(this.props);
      var start = this.state.selectedStartDate
      var end = this.state.selectedEndDate
-
+     const now = new Date(start).getTime()
+     firebase.database().ref(`users/${this.props.reduxStoreProps.user.id}/availability/${now}`).set({
+       [new Date(end).getTime()]: this.state.city
+     })
      while(start < end){
         firebase.database().ref(`${this.state.city}/${start}/${this.props.reduxStoreProps.user.id}`).set({
           occupied: 'yes',

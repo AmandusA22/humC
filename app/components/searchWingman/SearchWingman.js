@@ -11,8 +11,10 @@ import { includes } from 'lodash';
 import Button from 'react-native-button';
 import BackIcon from '../../images/back-icon.png';
 import Header from '../common/Header';
+import { connect } from 'react-redux';
+import getUserRow from '../common/userRow';
 
-export default class SearchWingman extends Component {
+class SearchWingman extends Component {
 
   constructor(props) {
     super(props);
@@ -34,9 +36,7 @@ export default class SearchWingman extends Component {
     console.log(this.props.city);
     const matchedUsers = [];
     const that = this;
-    console.log('loading data');
     while(start < end) {
-      console.log(start);
       firebase.database().ref(`${this.props.city}/${start}`)
       .once('value').then((data) => {
         console.log(data.val())
@@ -59,8 +59,22 @@ export default class SearchWingman extends Component {
     }
   }
 
-  sendInvite = () => {
+  sendInvite = (id) => {
+    const user = this.props.reduxStoreProps.user;
+    const relevantUserInfo = {
+      interest: user.interest,
+      name: user.name,
+      match: {[ new Date(this.props.start).getTime()]: {[new Date(this.props.end).getTime()] : this.props.city }},
+      age: user.age,
+      gender: user.gender,
+      image: user.image,
+      description: user.description,
+      id: user.id
+    };
+    console.log(relevantUserInfo)
 
+    firebase.database().ref(`users/${id}/requests/${user.id}`).set(relevantUserInfo)
+  //  newRef.set()
   }
 
   getUsers = (matchedUsers) => {
@@ -93,10 +107,10 @@ export default class SearchWingman extends Component {
           <View style={{ flexDirection: 'row', height: 110 }}>
             <Image style={{ height: 100, width: 100 }} source={{ uri: profile.image }} />
             <View>
-            <Text>{profile.name} is a {profile.age} year old {profile.gender} with an interest in
-               {profile.interest} he would describe himself as {profile.description}
-            </Text>
-            <Button onPress={() => this.sendInvite()}>
+              <Text>{profile.name} is a {profile.age} year old {profile.gender} with an interest in
+              {profile.interest} he would describe himself as {profile.description}
+              </Text>
+            <Button onPress={() => this.sendInvite(profile.id)}>
               Invite
             </Button>
             </View>
@@ -105,3 +119,9 @@ export default class SearchWingman extends Component {
       </View>);
   }
 }
+
+const mapStateToProps = (store) => ({
+  reduxStoreProps: store,
+});
+
+export default connect(mapStateToProps)(SearchWingman);
