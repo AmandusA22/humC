@@ -13,6 +13,7 @@ import BackIcon from '../../images/back-icon.png';
 import Header from '../common/Header';
 import { connect } from 'react-redux';
 import getUserRow from '../common/userRow';
+import { mapStateToProps } from '../common/functions';
 
 class SearchWingman extends Component {
 
@@ -119,9 +120,5 @@ class SearchWingman extends Component {
       </View>);
   }
 }
-
-const mapStateToProps = (store) => ({
-  reduxStoreProps: store,
-});
 
 export default connect(mapStateToProps)(SearchWingman);

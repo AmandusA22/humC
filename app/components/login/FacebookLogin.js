@@ -1,40 +1,42 @@
 import FBSDK, { LoginButton, LoginManager, AccessToken } from 'react-native-fbsdk';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import React, { Component } from 'react';
 import { Actions } from 'react-native-router-flux';
 import { connect } from 'react-redux';
+import * as firebase from 'firebase';
 import { saveUserInfoAction } from '../../redux/modules/saveUserInfo';
 import { saveAppStateAction } from '../../redux/modules/saveAppState';
+import { mapStateToProps } from '../common/functions';
+import Header from '../common/Header';
 
 const styles = StyleSheet.create({
-  view: {
-    height: 200,
+  containerView: {
+    marginTop: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+
+  },
+  headerText: {
+    marginTop: 40,
+    lineHeight: 32,
+    fontSize: 24,
+  },
+  bodyText: {
+    fontSize: 14,
     width: 300,
   },
 });
 
-import * as firebase from 'firebase';
-// // const firebaseConfig = {
-// //   apiKey: 'AIzaSyDrQpV3-mc6-hGGJAroP9le4boFeHrG1aM',
-// //   authDomain: 'wingman-f33a2.firebaseapp.com',
-// //   databaseURL: 'https://wingman-f33a2.firebaseio.com',
-// //   storageBucket: 'wingman-f33a2.appspot.com',
-// // };
-// // const firebaseApp = firebase.initializeApp(firebaseConfig);
-//
-//
-// // <script src="https://www.gstatic.com/firebasejs/4.1.1/firebase.js"></script>
-// // <script>
-//  // Initialize Firebase
- var config = {
-   apiKey: "AIzaSyDrQpV3-mc6-hGGJAroP9le4boFeHrG1aM",
-   authDomain: "wingman-f33a2.firebaseapp.com",
-   databaseURL: "https://wingman-f33a2.firebaseio.com",
-   projectId: "wingman-f33a2",
-   storageBucket: "wingman-f33a2.appspot.com",
-   messagingSenderId: "118390179615"
+ const config = {
+   apiKey: 'AIzaSyDrQpV3-mc6-hGGJAroP9le4boFeHrG1aM',
+   authDomain: 'wingman-f33a2.firebaseapp.com',
+   databaseURL: 'https://wingman-f33a2.firebaseio.com',
+   projectId: 'wingman-f33a2',
+   storageBucket: 'wingman-f33a2.appspot.com',
+   messagingSenderId: '118390179615',
  };
- firebase.initializeApp(config);
+
+firebase.initializeApp(config);
 
 export class Login extends Component {
 
@@ -55,26 +57,14 @@ export class Login extends Component {
   }
 
   componentDidMount() {
-    const auth = firebase.auth();
-    const provider = firebase.auth.FacebookAuthProvider;
-    LoginManager.logInWithReadPermissions(['public_profile'])
-    .then((loginResult) => {
-      if (loginResult.isCancelled) {
-        console.log('user canceled');
-        return;
-      }
-      AccessToken.getCurrentAccessToken()
-      .then((accessTokenData) => {
-        const credential = provider.credential(accessTokenData.accessToken);
-        return auth.signInWithCredential(credential);
-      })
-      .then((credData) => {
-        this.checkIfExistingUser(credData);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-    });
+    AccessToken.getCurrentAccessToken().then(
+            (data) => {
+              console.log(data)
+              if (data.accessToken) {
+                this.login()
+              }
+            }
+        )
   }
 
   goToUserSetup() {
@@ -92,96 +82,47 @@ export class Login extends Component {
   }
 
   goToTabMenu = (id) => {
+    console.log('in tabMenu')
     const that = this;
     firebase.database().ref(`users/${id}`).once('value').then((data) => {
         that.saveToRedux(data.val());
         that.props.dispatch(saveAppStateAction({ tabBar: true }))
         Actions.tabBar();
       })
+  }
+
+  login() {
+    console.log('in login');
+    const auth = firebase.auth();
+    const provider = firebase.auth.FacebookAuthProvider;
+      AccessToken.getCurrentAccessToken()
+      .then((accessTokenData) => {
+        console.log('got accesTok')
+        const credential = provider.credential(accessTokenData.accessToken);
+        return auth.signInWithCredential(credential);
+      })
+      .then((credData) => {
+        console.log('got credData');
+        this.checkIfExistingUser(credData);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
 
   }
 
   render() {
   return (
-    <View>
-    <LoginButton
-      publishPermissions={["publish_actions"]}
-      readPermissions={['public_profile']}
-      onLoginFinished={
-        (error, result) => {
-          if (error) {
-            alert("Login failed with error: " + result.error);
-          } else if (result.isCancelled) {
-            alert("Login was cancelled");
-          } else {
-            this.checkIfExistingUser()
-            // AccessToken.getCurrentAccessToken().then(
-            //       (data) => {
-            //         alert(data.accessToken.toString())
-            //       }
-            //     )
-            // AccessToken.getCurrentAccessToken().then((data) => {
-            //    const { accessToken } = data
-            //    initUser(accessToken)
-            //  })
-
-            alert("Login was successful with permissions: " + result.grantedPermissions)
-          }
-        }
-      }
-      onLogoutFinished={() => alert("User logged out")}
-      onLoginFound={function(data){
-         console.log("Existing login found.");
-         console.log(data);
-         _this.setState({ user : data.credentials });
-       }}
-       onLoginNotFound={function(){
-            console.log("No user logged in.");
-            _this.setState({ user : null });
-          }}
-        />
+    <View style={styles.containerView}>
+      <Header variant="transparent" title="Wingman" />
+      <Text style={styles.bodyText}>{longText}</Text>
+      <LoginButton onLoginFinished={() => this.login()} />
     </View>
   );
   }
 }
 
-const mapStateToProps = (store) => ({
-  reduxStoreProps: store,
-});
 
 export default connect(mapStateToProps)(Login);
 
-
-// function setBandMessageAsync() {
-// return dispatch => {
-//   return new Promise((resolve) => {
-//     clearTimeout(timer);
-//     timer = setTimeout(() => {
-//       resolve(payload);
-//     }, 1000);
-//   }).then(result => {
-//     dispatch(saveMessageAction(result));
-//   });
-//
-// var Login = React.createClass({
-//   render: function() {
-//     return (
-//       <View>
-//         <LoginButton
-//           publishPermissions={["publish_actions"]}
-//           onLoginFinished={
-//             (error, result) => {
-//               if (error) {
-//                 alert("Login failed with error: " + result.error);
-//               } else if (result.isCancelled) {
-//                 alert("Login was cancelled");
-//               } else {
-//                 alert("Login was successful with permissions: " + result.grantedPermissions)
-//               }
-//             }
-//           }
-//           onLogoutFinished={() => alert("User logged out")}/>
-//       </View>
-//     );
-//   }
-// });
+const longText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla  pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."

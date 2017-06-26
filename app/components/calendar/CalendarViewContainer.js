@@ -10,6 +10,7 @@ import { Actions } from 'react-native-router-flux';
 import * as firebase from 'firebase';
 import { connect } from 'react-redux';
 import { saveAppStateAction } from '../../redux/modules/saveAppState';
+import { mapStateToProps } from '../common/functions';
 
 export class Calendar extends Component {
   constructor(props) {
@@ -75,13 +76,13 @@ export class Calendar extends Component {
 
     return (
       <View style={styles.container}>
-        <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: 30, marginRight: 30}}>
-          <Text style={{lineHeight: 30}}>I will be in </Text>
-          <Button style={{lineHeight: 30}}> Stockholm </Button>
+        <View style={styles.headerRow}>
+          <Text style={styles.text}>I will be in </Text>
+          <Button style={styles.text}> Stockholm </Button>
         </View>
         <View style={{marginLeft: 30, marginRight: 30, alignItems: 'center', marginBottom: 30}}>
           {displayableStartDate ?
-             <Text style={{lineHeight: 30}}> Between { displayableStartDate } and { displayableEndDate } </Text>
+             <Text style={styles.text}> Between { displayableStartDate } and { displayableEndDate } </Text>
                :
               <Text>Select dates </Text>
           }
@@ -110,10 +111,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     marginTop: 50,
   },
-});
-
-const mapStateToProps = (store) => ({
-  reduxStoreProps: store,
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 30,
+    marginRight: 30
+  },
+  text: {
+    lineHeight: 30
+  },
 });
 
 export default connect(mapStateToProps)(Calendar);

@@ -20,6 +20,7 @@ import { Actions } from 'react-native-router-flux'
 import { connect } from 'react-redux';
 import { saveUserInfoAction } from '../../redux/modules/saveUserInfo'
 import * as firebase from 'firebase';
+import { mapStateToProps } from '../common/functions';
 
 const styles = StyleSheet.create({
   underline: {
@@ -126,7 +127,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export class CreateProfile extends Component {
+class CreateProfile extends Component {
 
   constructor(props) {
     super(props);
@@ -359,8 +360,4 @@ export class CreateProfile extends Component {
     }
   }
 
-  const mapStateToProps = (store) => ({
-    reduxStoreProps: store,
-  });
-
-  export default connect(mapStateToProps)(CreateProfile);
+export default connect(mapStateToProps)(CreateProfile);
