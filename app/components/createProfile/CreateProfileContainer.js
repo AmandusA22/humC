@@ -21,6 +21,9 @@ import { connect } from 'react-redux';
 import { saveUserInfoAction } from '../../redux/modules/saveUserInfo'
 import * as firebase from 'firebase';
 import { mapStateToProps } from '../common/functions';
+import Header from '../common/Header';
+import FBSDK, { LoginButton, LoginManager, AccessToken } from 'react-native-fbsdk';
+
 
 const styles = StyleSheet.create({
   underline: {
@@ -319,10 +322,16 @@ class CreateProfile extends Component {
     }
   }
 
+  logout() {
+    Actions.LoginWithFacebook();
+
+  }
+
+
   createInputs = () =>
     <View style={{flex: 1, alignItems: 'center'}}>
-    <View style={{ height: 20 }} />
-    <Text style={styles.headerText}>Create Account</Text>
+      <Header variant="transparent" title="CreateAccount" left={<Button onPress={this.logOut}>X</Button>} />
+        <LoginButton onLogoutFinished={this.logout} />
       {this.GetUIComponents().map((value, index) =>
         <View>
           <View style={{ width: 35 }} />

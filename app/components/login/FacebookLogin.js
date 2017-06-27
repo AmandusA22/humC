@@ -58,13 +58,13 @@ export class Login extends Component {
 
   componentDidMount() {
     AccessToken.getCurrentAccessToken().then(
-            (data) => {
-              console.log(data)
-              if (data.accessToken) {
-                this.login()
-              }
-            }
-        )
+      (data) => {
+        console.log(data);
+        if (data.accessToken) {
+          this.login();
+        }
+      },
+    );
   }
 
   goToUserSetup() {
