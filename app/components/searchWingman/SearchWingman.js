@@ -14,6 +14,7 @@ import Header from '../common/Header';
 import { connect } from 'react-redux';
 import getUserRow from '../common/userRow';
 import { mapStateToProps } from '../common/functions';
+import { Actions } from 'react-native-router-flux';
 
 class SearchWingman extends Component {
 
@@ -88,10 +89,20 @@ class SearchWingman extends Component {
       });
     });
   }
+
+  backToCalendar() {
+    if (this.props.reduxStoreProps.app_state.tabBar) {
+      return Actions.CalendarTab()
+    }
+    // else
+    Actions.calendar();
+  }
+
   renderHeader = () => {
+    console.log(this.props.reduxStoreProps)
     return(
       <Header variant="transparent" title="Matches" left={
-      <TouchableHighlight>
+      <TouchableHighlight onPress={() => this.backToCalendar()}>
         <Image source={BackIcon}></Image>
       </TouchableHighlight>
 

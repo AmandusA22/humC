@@ -2,14 +2,13 @@ import FBSDK, { LoginButton, LoginManager, AccessToken } from 'react-native-fbsd
 import { View, ScrollView, StyleSheet, Text, Image, TouchableHighlight } from 'react-native';
 import React, { Component } from 'react';
 import { Actions } from 'react-native-router-flux';
-import { saveUserInfoAction } from '../../redux/modules/saveUserInfo';
-import { saveAppStateAction } from '../../redux/modules/saveAppState';
+import Button from 'react-native-button';
 import * as firebase from 'firebase';
 import { connect } from 'react-redux';
-import Button from 'react-native-button';
+import { saveUserInfoAction } from '../../redux/modules/saveUserInfo';
+import { saveAppStateAction } from '../../redux/modules/saveAppState';
 import Header from '../common/Header';
-import { unixToShortDate } from '../common/functions';
-import { mapStateToProps } from '../common/functions';
+import { unixToShortDate, mapStateToProps } from '../common/functions';
 
 class MatchList extends Component {
   constructor() {
@@ -152,7 +151,7 @@ class MatchList extends Component {
         return (
           <View style={{ flex: 1, marginTop: 30, justifyContent: 'center', alignItems: 'center' }}>
             <View>
-              <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{`${unixToShortDate(start)} - ${unixToShortDate(end)} - ${city}`}</Text>
+              <Button onPress={(start)=> this.removeDatesAlert(start) } style={{ fontSize: 18, fontWeight: 'bold' }}>{`${unixToShortDate(start)} - ${unixToShortDate(end)} - ${city}`}</Button>
             </View>
             <ScrollView>
               {matchArr.map((match) => {
@@ -171,6 +170,14 @@ class MatchList extends Component {
         )
       }
     }));
+  }
+
+  removeDatesAlert = (start) => {
+
+  }
+
+  removeDates = (start) => {
+
   }
 
   goToChat = (user) => {

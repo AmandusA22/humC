@@ -1,5 +1,5 @@
 import FBSDK, { LoginButton, LoginManager, AccessToken } from 'react-native-fbsdk';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, Image, Dimensions } from 'react-native';
 import React, { Component } from 'react';
 import { Actions } from 'react-native-router-flux';
 import { connect } from 'react-redux';
@@ -8,13 +8,14 @@ import { saveUserInfoAction } from '../../redux/modules/saveUserInfo';
 import { saveAppStateAction } from '../../redux/modules/saveAppState';
 import { mapStateToProps } from '../common/functions';
 import Header from '../common/Header';
+import Wingman from '../../images/wingHorse.jpeg';
 
 const styles = StyleSheet.create({
   containerView: {
-    marginTop: 40,
+    flex: 1,
+    marginTop: 50,
     justifyContent: 'center',
     alignItems: 'center',
-
   },
   headerText: {
     marginTop: 40,
@@ -25,6 +26,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     width: 300,
   },
+  footer: {
+    alignItems: 'center',
+justifyContent: 'center',
+backgroundColor: 'transparent',
+  }
 });
 
  const config = {
@@ -85,10 +91,10 @@ export class Login extends Component {
     console.log('in tabMenu')
     const that = this;
     firebase.database().ref(`users/${id}`).once('value').then((data) => {
-        that.saveToRedux(data.val());
-        that.props.dispatch(saveAppStateAction({ tabBar: true }))
-        Actions.tabBar();
-      })
+      that.saveToRedux(data.val());
+      that.props.dispatch(saveAppStateAction({ tabBar: true }))
+      Actions.tabBar();
+    });
   }
 
   login() {
@@ -108,15 +114,17 @@ export class Login extends Component {
       .catch((err) => {
         console.log(err);
       });
-
   }
 
   render() {
   return (
     <View style={styles.containerView}>
-      <Header variant="transparent" title="Wingman" />
-      <Text style={styles.bodyText}>{longText}</Text>
+      <Image style={{height: 250, width: 250}} source={Wingman} />
+      <Text style={{fontSize: 22, marginBottom: 30, marginTop: 60}}>Meet your future wingman today</Text>
+      <Text style={{fontSize: 18, color: 'gray', marginLeft: 30, marginRight: 30, justifyContent: 'center', textAlign: 'center'}}> Find the wingmans that are best for your own personality and availability.</Text>
+      <View style={{marginTop: 30}}>
       <LoginButton onLoginFinished={() => this.login()} />
+      </View>
     </View>
   );
   }

@@ -5,7 +5,9 @@ import {
   Text,
   View,
   TouchableHighlight,
-  Image
+  Image,
+  Button,
+  Alert,
 } from 'react-native';
 import * as firebase from 'firebase';
 import Header from '../common/Header';
@@ -203,13 +205,33 @@ class Chat extends React.Component {
     Action.MatchList();
   }
 
+  removeAlert() {
+    Alert.alert('Remove',
+      `are you sure you want to remove ${this.props.user.name} from your chat?`,
+      [{ text: 'Yes', onPress: () => this.removeUserFromChat() },
+      { text: 'No' },
+      ],
+    );
+  }
+
+  removeUserFromChat = () => {
+    console.log('removing')
+    const ourID = this.props.reduxStoreProps.user.id;
+    const pathInAvailability = `availability/${this.props.path}`;
+    const theirId = this.props.user.id
+    firebase.database().ref(`users/${userID}/${pathInAvailability}/${theirId}`).remove();
+  }
+
+  leftHeader = () => <TouchableHighlight onPress={() => this.toMatch()}>
+      <Image source={BackIcon}></Image>
+    </TouchableHighlight>
+
+
   render() {
     return (
       <View style={{ marginBottom: 56, flex: 1 }}>
-        <Header variant="transparent" left={
-        <TouchableHighlight onPress={() => this.toMatch()}>
-          <Image source={BackIcon}></Image>
-        </TouchableHighlight>} title="Chat"/>
+        <Header variant="transparent" left={this.leftHeader()}
+          title={this.props.user.name} right={<Button title="X" onPress={() => this.removeAlert()} />} />
       <GiftedChat
         messages={this.state.messages}
         onSend={this.onSend}

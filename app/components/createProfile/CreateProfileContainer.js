@@ -9,7 +9,9 @@ import {
   Image,
   Alert,
   TouchableHighlight,
+  ScrollView,
   Dimensions,
+  KeyboardAvoidingView
 } from 'react-native';
 import Button from 'react-native-button';
 import CameraRollPicker from './CameraRollPicker';
@@ -23,6 +25,8 @@ import * as firebase from 'firebase';
 import { mapStateToProps } from '../common/functions';
 import Header from '../common/Header';
 import FBSDK, { LoginButton, LoginManager, AccessToken } from 'react-native-fbsdk';
+import LabeledValue from '../common/LabeledValue';
+import LabeledInput from '../common/LabeledValue/LabeledInput';
 
 
 const styles = StyleSheet.create({
@@ -100,7 +104,7 @@ const styles = StyleSheet.create({
   },
 
   doneButton: {
-    alignSelf: 'flex-end',
+    alignSelf: 'center',
     marginTop: 40,
   },
   uploadImageContainer: {
@@ -146,7 +150,7 @@ class CreateProfile extends Component {
 
   componentDidMount() {
   //  super.componentDidMount()
-    this.setStateFromRedux()
+    this.setStateFromRedux();
   }
 
   setStateFromRedux = () => {
@@ -166,8 +170,8 @@ class CreateProfile extends Component {
       interest: this.interestedInPicker(),
       gender: this.genderPicker(),
       none: null,
-    }
-    return pickers[this.state.picker]
+    };
+    return pickers[this.state.picker];
   }
 
   agePicker = () =>
@@ -177,115 +181,90 @@ class CreateProfile extends Component {
         selectedValue={this.state.age}
         onValueChange={age => this.setState({ age })}
       >
-      {Array(100).fill(' ').map((value, index) =>
-        <Picker.Item label={`${index}`} value={`${index}`} />,
-      )}
-    </Picker>
-  </View>
+        {Array(100).fill(' ').map((value, index) =>
+          <Picker.Item label={`${index}`} value={`${index}`} />,
+        )}
+      </Picker>
+    </View>
 
   genderPicker = () =>
-  <View>
-    {this.doneButton()}
-    <Picker
-      selectedValue={this.state.gender}
-      onValueChange={gender => this.setState({ gender })}
-    >
-      <Picker.Item label="Man" value="Man" />
-      <Picker.Item label="Women" value="Women" />
-      <Picker.Item label="Other" value="Other" />
-    </Picker>
-  </View>
+    <View>
+      {this.doneButton()}
+      <Picker
+        selectedValue={this.state.gender}
+        onValueChange={gender => this.setState({ gender })}
+      >
+        <Picker.Item label="Man" value="Man" />
+        <Picker.Item label="Women" value="Women" />
+        <Picker.Item label="Other" value="Other" />
+      </Picker>
+    </View>
 
   doneButton = () =>
-    <Button style={styles.doneButton} onPress={() => this.setState({ picker: null })}>
+
+    <Button style={styles.doneButton} onPress={this.setNoPicker}>
       Done
     </Button>
 
+    setNoPicker = () => {
+
+      //this.scrollView.scrollTo({x: 0, y: 300, animated: true})
+      this.setState({ picker: null });
+  }
 
   interestedInPicker = () =>
     <View>
-    {this.doneButton()}
-    <Picker
-      selectedValue={this.state.interest}
-      onValueChange={interest => this.setState({ interest })}
-    >
-      <Picker.Item label="Women" value="Women" />
-      <Picker.Item label="Men" value="Men" />
-      <Picker.Item label="Men and Women" value="Men and Women" />
-    </Picker>
-  </View>
+      {this.doneButton()}
+      <Picker
+        selectedValue={this.state.interest}
+        onValueChange={interest => this.setState({ interest })}
+      >
+        <Picker.Item label="Women" value="Women" />
+        <Picker.Item label="Men" value="Men" />
+        <Picker.Item label="Men and Women" value="Men and Women" />
+      </Picker>
+    </View>
 
   GetUIComponents = () => [this.getProfileNameRow(), this.getAgeRow(), this.getInterestsRow(), this.getDescriptionRow(), this.getUploadPictureRow()]
 
   getProfileNameRow = () =>
-    <View style={styles.underline}>
-        <TextInput
-          placeholder="Full Name"
-          value={this.state.name}
-          onChangeText={name => this.setState({ name })}
-          returnKeyType="done"
-          style={styles.numberInputText}
-        />
-    </View>
+    <LabeledInput
+      setValue={name => this.setState({ name })}
+      label="Full name"
+      value={this.state.name}
+      style={{ flex: 1, height: 50 }}
+      keyboardType="default"
+      returnKeyType="done"
+    />
+
+  getInterestsRow = () => <LabeledValue labelPressed={() => this.setState({ picker: 'interest' })} label="interest" value={this.state.interest} style={{ flex: 1, height: 50 }} />
 
   getAgeRow = () =>
-  <View style={{flexDirection: 'row'}}>
-    <View style={styles.underline}>
-      <Text>I'm</Text>
-      <Button
-        onPress={() => this.setState({ picker: 'age' })}
-        style={styles.standardButton}
-      >{this.state.age}</Button>
-    <Text>Years old </Text>
-      </View>
-      <View style={[styles.underline, {marginLeft: 0}]}>
-
-        <Text>My gender is</Text>
-      <Button
-        onPress={() => this.setState({ picker: 'gender' })}
-        style={styles.standardButton}
-      >
-        {this.state.gender}
-      </Button>
+    <View style={{ flexDirection: 'row' }}>
+      <LabeledValue labelPressed={() => this.setState({ picker: 'age' })} label="age" value={`${this.state.age} years old`} style={{ flex: 1, height: 50 }} />
+      <LabeledValue labelPressed={() => this.setState({ picker: 'gender' })} label="gender" value={this.state.gender} style={{ flex: 1, height: 50 }} />
     </View>
-  </View>
-
-  getInterestsRow = () =>
-    <View style={styles.underline}>
-      <Text style={styles.standardText}>I am interested in </Text>
-      <Button
-        onPress={() => this.setState({ picker: 'interest' })}
-        title={this.state.interest}
-        style={styles.standardButton}
-      >
-        {this.state.interest}
-      </Button>
-    </View>;
 
   getDescriptionRow = () =>
-    <View style={[styles.underline]}>
-      <TextInput
-        multiline
-        numberOfLines={8}
-        onContentSizeChange={(event) => {
-          this.setState({height: event.nativeEvent.contentSize.height})}}
-        placeholder="Description of yourself and what you're looking for"
-        onChangeText={description => this.setState({ description })}
-        value={this.state.description}
-        style={[styles.numberInputText, this.state.height < 120 ? {height: this.state.height} : {height: 120}]}
-      />
-    </View>
+    <LabeledInput
+      setValue={description => this.setState({ description })}
+      label="Describe yourself"
+      value={this.state.description}
+      style={{ flex: 1, height: 50 }}
+      keyboardType="default"
+      returnKeyType="done"
+    />
 
   getUploadPictureRow = () =>
-    <View style={{marginTop: 40}}>
-        {this.state.image ?
-          <View style={{alignItems: 'center'}}>
-            <Image style={{ height: 100, width: 100 }} source={{ uri: this.state.image }} />
-              <Button onPress={() => this.showImageAlert()}>
-                Change Image
-              </Button>
-          </View>:
-          <Button onPress={() => this.showImageAlert()}>Choose Image</Button>
+    <View style={{ marginTop: 40 }}>
+      {this.state.image ?
+        <View style={{ alignItems: 'center' }}>
+          <Image style={{ height: 100, width: 100 }} source={{ uri: this.state.image }} />
+          <Button onPress={() => this.showImageAlert()}>
+            Change Image
+          </Button>
+        </View> :
+        <Button onPress={() => this.showImageAlert()}>Choose Image</Button>
         }
 
     </View>
@@ -316,10 +295,12 @@ class CreateProfile extends Component {
     };
     firebase.database().ref(`users/${this.props.reduxStoreProps.user.id}`).update(saveData)
     this.props.dispatch(saveUserInfoAction(saveData))
-
-    if (!this.props.inTab) {
-      Actions.calendar()
+    if (this.props.reduxStoreProps.app_state.tabBar) {
+      console.log('in tabbar');
+      return Actions.CalendarTab();
     }
+    Actions.calendar()
+
   }
 
   logout() {
@@ -327,30 +308,40 @@ class CreateProfile extends Component {
 
   }
 
+  ifScroll = () => {
+    if(this.state.picker){ return this.scrollView.scrollToEnd({animated: true})}
+  }
+
 
   createInputs = () =>
-    <View style={{flex: 1, alignItems: 'center'}}>
+  <View style={{flex: 1}}>
+    <ScrollView style={{flex: 1, marginLeft: 20, marginRight: 20}}  onContentSizeChange={(contentWidth, contentHeight)=>{
+        this.ifScroll()}} contentInset={{bottom: 64}} ref={ref => this.scrollView = ref}>
       <Header variant="transparent" title="CreateAccount" left={<Button onPress={this.logOut}>X</Button>} />
-        <LoginButton onLogoutFinished={this.logout} />
+        <View style={{ flexDirection: 'row', alignItems: 'center', alignSelf: 'center'}}>
+          <LoginButton onLogoutFinished={this.logout} />
+        </View>
       {this.GetUIComponents().map((value, index) =>
-        <View>
-          <View style={{ width: 35 }} />
+        <View style={{flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 30}}>
+
           {value}
-        </View>,
+        </View>
     )}
       {this.pickers()}
-      <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 40, }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', alignSelf: 'center', marginTop: 40 }}>
         <View style={{height: 40 }} />
         <Button
           containerStyle={styles.doneButtonContainer}
           style={styles.doneButtonText}
-          onPress={this.sendCreateProfile}
+          onPress={() => this.sendCreateProfile()}
         >
           Done
         </Button>
       </View>
-    </View>
 
+        {this.state.keyboard ? <Button>Done</Button> : null}
+    </ScrollView>
+</View>
 
   showImageAlert = () =>
       Alert.alert('Choose Image',
@@ -361,6 +352,10 @@ class CreateProfile extends Component {
     )
 
     render() {
+      if (this.state.picker !== null) {
+        this.scrollView.scrollToEnd({animated: true});
+      } else {
+      }
       console.log('in render');
       console.log(this.props)
       return (
@@ -368,5 +363,40 @@ class CreateProfile extends Component {
       );
     }
   }
+
+  // <View style={{flexDirection: 'row'}}>
+  //   <View style={styles.underline}>
+  //     <Text>I'm</Text>
+  //     <Button
+  //       onPress={() => this.setState({ picker: 'age' })}
+  //       style={styles.standardButton}
+  //     >{this.state.age}</Button>
+  //   <Text>Years old </Text>
+  //     </View>
+  //     <View style={[styles.underline, {marginLeft: 0}]}>
+  //
+  //       <Text>My gender is</Text>
+  //     <Button
+  //       onPress={() => this.setState({ picker: 'gender' })}
+  //       style={styles.standardButton}
+  //     >
+  //       {this.state.gender}
+  //     </Button>
+  //   </View>
+  // </View>
+  //
+  // <View style={[styles.underline]}>
+  //   <TextInput
+  //     multiline
+  //     numberOfLines={8}
+  //     onContentSizeChange={(event) => {
+  //       this.setState({height: event.nativeEvent.contentSize.height})}}
+  //     placeholder="Description of yourself and what you're looking for"
+  //     onChangeText={description => this.setState({ description })}
+  //     value={this.state.description}
+  //     style={[styles.numberInputText, this.state.height < 120 ? {height: this.state.height} : {height: 120}]}
+  //   />
+  // </View>
+
 
 export default connect(mapStateToProps)(CreateProfile);

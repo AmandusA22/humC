@@ -1,6 +1,6 @@
 export function unixToShortDate(unix) {
   console.log(unix);
-  const newDate = new Date(unix * 1000);
+  const newDate = new Date(Number(unix));
   const dateString = `${newDate}`;
   console.log(dateString);
   const dateArr = dateString.split(' ');
