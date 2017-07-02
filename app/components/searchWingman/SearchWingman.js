@@ -15,6 +15,7 @@ import { connect } from 'react-redux';
 import getUserRow from '../common/userRow';
 import { mapStateToProps } from '../common/functions';
 import { Actions } from 'react-native-router-flux';
+import UserRow from '../common/userRow';
 
 class SearchWingman extends Component {
 
@@ -116,20 +117,22 @@ class SearchWingman extends Component {
       <View>
         {this.renderHeader()}
         {this.state.userProfiles ? this.state.userProfiles.map(profile =>
-          <View style={{ flexDirection: 'row', height: 110 }}>
-            <Image style={{ height: 100, width: 100 }} source={{ uri: profile.image }} />
-            <View>
-              <Text>{profile.name} is a {profile.age} year old {profile.gender} with an interest in
-              {profile.interest} he would describe himself as {profile.description}
-              </Text>
-            <Button onPress={() => this.sendInvite(profile.id)}>
-              Invite
-            </Button>
-            </View>
-          </View>,
+          <UserRow user={profile} />
+
         ) : null }
       </View>);
   }
 }
 
+// <View style={{ flexDirection: 'row', height: 110 }}>
+//   <Image style={{ height: 100, width: 100 }} source={{ uri: profile.image }} />
+//   <View>
+//     <Text>{profile.name} is a {profile.age} year old {profile.gender} with an interest in
+//     {profile.interest} he would describe himself as {profile.description}
+//     </Text>
+//   <Button onPress={() => this.sendInvite(profile.id)}>
+//     Invite
+//   </Button>
+//   </View>
+// </View>,
 export default connect(mapStateToProps)(SearchWingman);
