@@ -364,39 +364,4 @@ class CreateProfile extends Component {
     }
   }
 
-  // <View style={{flexDirection: 'row'}}>
-  //   <View style={styles.underline}>
-  //     <Text>I'm</Text>
-  //     <Button
-  //       onPress={() => this.setState({ picker: 'age' })}
-  //       style={styles.standardButton}
-  //     >{this.state.age}</Button>
-  //   <Text>Years old </Text>
-  //     </View>
-  //     <View style={[styles.underline, {marginLeft: 0}]}>
-  //
-  //       <Text>My gender is</Text>
-  //     <Button
-  //       onPress={() => this.setState({ picker: 'gender' })}
-  //       style={styles.standardButton}
-  //     >
-  //       {this.state.gender}
-  //     </Button>
-  //   </View>
-  // </View>
-  //
-  // <View style={[styles.underline]}>
-  //   <TextInput
-  //     multiline
-  //     numberOfLines={8}
-  //     onContentSizeChange={(event) => {
-  //       this.setState({height: event.nativeEvent.contentSize.height})}}
-  //     placeholder="Description of yourself and what you're looking for"
-  //     onChangeText={description => this.setState({ description })}
-  //     value={this.state.description}
-  //     style={[styles.numberInputText, this.state.height < 120 ? {height: this.state.height} : {height: 120}]}
-  //   />
-  // </View>
-
-
 export default connect(mapStateToProps)(CreateProfile);

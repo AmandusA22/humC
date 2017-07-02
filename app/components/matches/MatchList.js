@@ -92,6 +92,7 @@ class MatchList extends Component {
 
   renderRequests() {
     console.log(this.state.requestUsers)
+    if (this.state.requestUsers.length <= 0) { return}
     return(
       <View>
         <Text style={{ fontSize: 18}}>Chat invitations</Text>
@@ -121,6 +122,7 @@ class MatchList extends Component {
       })}
       </View>
     )
+
   }
 
   renderChatDates = () => {
@@ -151,9 +153,11 @@ class MatchList extends Component {
         return (
           <View style={{ flex: 1, marginTop: 30, justifyContent: 'center', alignItems: 'center' }}>
             <View>
-              <Button onPress={(start)=> this.removeDatesAlert(start) } style={{ fontSize: 18, fontWeight: 'bold' }}>{`${unixToShortDate(start)} - ${unixToShortDate(end)} - ${city}`}</Button>
+              <Text style={{ fontSize: 14 }}>
+                {`${unixToShortDate(start)} - ${unixToShortDate(end)} - ${city}`}
+              </Text>
             </View>
-            <ScrollView>
+            <ScrollView contentInset={{bottom: 64}}>
               {matchArr.map((match) => {
                 let user;
                 for (const id in match) {
@@ -161,7 +165,7 @@ class MatchList extends Component {
                 }
               return(
                 <TouchableHighlight onPress={() => this.goToChat(user)}>
-                  <Image source={{ uri: user.image }} style={{ height: 100, width: 100 }} />
+                  <Image source={{ uri: user.image }} style={{ height: 100, width: 100, borderRadius: 50, marginTop: 20 }} />
                 </TouchableHighlight>
               )
             })}

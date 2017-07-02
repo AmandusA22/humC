@@ -3,6 +3,7 @@ import {
   StyleSheet,
   Text,
   View,
+  ScrollView,
 } from 'react-native';
 import CalendarPicker from 'react-native-calendar-picker';
 import Button from 'react-native-button';
@@ -10,8 +11,8 @@ import { Actions } from 'react-native-router-flux';
 import * as firebase from 'firebase';
 import { connect } from 'react-redux';
 import { saveAppStateAction } from '../../redux/modules/saveAppState';
-import { mapStateToProps } from '../common/functions';
-
+import { mapStateToProps, getAvailabilityArray } from '../common/functions';
+import AvailabilityRow from '../common/AvailabilityRow';
 export class Calendar extends Component {
   constructor(props) {
     super(props);
@@ -19,6 +20,10 @@ export class Calendar extends Component {
       selectedStartDate: null,
       city: 'Stockholm',
     };
+  }
+
+  componentDidMount() {
+    getAvailabilityArray(`${this.props.reduxStoreProps.user.id}`).then(availabilities => this.setState({ availabilities }));
   }
 
   onDateChange = (date, type) => {
@@ -33,16 +38,21 @@ export class Calendar extends Component {
        });
      }
    }
-   confirmAvailability = () => {
-     console.log(this.props);
-     var start = this.state.selectedStartDate
-     var end = this.state.selectedEndDate
-     const now = new Date(start).getTime()
-     firebase.database().ref(`users/${this.props.reduxStoreProps.user.id}/availability/${now}`).set({
-       [new Date(end).getTime()]: this.state.city
-     })
-     while(start < end){
-        firebase.database().ref(`${this.state.city}/${start}/${this.props.reduxStoreProps.user.id}`).set({
+
+  confirmAvailability = () => {
+    console.log(this.props);
+    let start = this.state.selectedStartDate
+    let end = this.state.selectedEndDate;
+    const startDate = new Date(start).getTime();
+    const endDate = new Date(end).getTime();
+    firebase.database().ref(`users/${this.props.reduxStoreProps.user.id}/availability/${startDate}`).set({
+      start: startDate,
+      end: endDate,
+      city: this.state.city,
+      chats: [],
+    });
+    while (start < end) {
+       firebase.database().ref(`${this.state.city}/${start}/${this.props.reduxStoreProps.user.id}`).set({
           occupied: 'yes',
         })
        var newDate = start.setDate(start.getDate() + 1);
@@ -54,6 +64,22 @@ export class Calendar extends Component {
        this.props.dispatch(saveAppStateAction({ tabBar: true }))
        Actions.tabBar() }
      else { Actions.searchWingman({ start: this.state.selectedStartDate, end: this.state.selectedEndDate, city: this.state.city }); }
+   }
+
+   getAvailabilityRows = () => {
+     console.log(this.state.availabilities)
+    if (this.state.availabilities) {
+      console.log('inside')
+      return(<View style={{flex: 1}}>
+     {this.state.availabilities.map((availability) => {
+       console.log('mapping')
+       if (availability.start) {
+       return (<AvailabilityRow availability={availability} />)
+     }
+     })}
+
+     </View>)
+   }
    }
 
   render() {
@@ -75,7 +101,7 @@ export class Calendar extends Component {
   }
 
     return (
-      <View style={styles.container}>
+      <ScrollView contentInset={{bottom: 44}} style={styles.container} contentContainerStyle={styles.contentContainer}>
         <View style={styles.headerRow}>
           <Text style={styles.text}>I will be in </Text>
           <Button style={styles.text}> Stockholm </Button>
@@ -98,17 +124,22 @@ export class Calendar extends Component {
           />
           <View style={{marginTop: 30}}>
             <Button onPress={this.confirmAvailability}>Confirm Availability and search Wingman</Button>
+              {this.getAvailabilityRows()}
+
           </View>
-      </View>
+      </ScrollView>
     );
   }
 }
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
     flex: 1,
     backgroundColor: '#FFFFFF',
+
+  },
+  contentContainer: {
+    alignItems: 'center',
     marginTop: 50,
   },
   headerRow: {
