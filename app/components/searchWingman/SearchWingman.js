@@ -21,7 +21,6 @@ class SearchWingman extends Component {
 
   constructor(props) {
     super(props);
-    this.people = [{ description: 'hi', age: 27, gender: 'Male', interest: 'women' }];
     this.state = {
       matchedUsers: null,
       userProfiles: null,
@@ -34,8 +33,8 @@ class SearchWingman extends Component {
 
   loadData() {
     console.log(this.props.start);
-    let start = this.props.start;
-    const end = this.props.end;
+    let start = new Date(+this.props.start).getTime()
+    const end = new Date(+this.props.end).getTime();
     console.log(this.props.city);
     const matchedUsers = [];
     const that = this;
@@ -57,27 +56,30 @@ class SearchWingman extends Component {
           }
         }
       });
-      const newDate = start.setDate(start.getDate() + 1);
-      start = new Date(newDate);
+      start += 1000 * 60 * 60 * 24;
+      // const newDate = start.setDate(start.getDate() + 1);
+      // start = new Date(newDate);
     }
   }
 
   sendInvite = (id) => {
     const user = this.props.reduxStoreProps.user;
+    const start = new Date(this.props.start).getTime();
+    const end = new Date(this.props.end).getTime();
     const relevantUserInfo = {
       interest: user.interest,
       name: user.name,
-      match: {[ new Date(this.props.start).getTime()]: {[new Date(this.props.end).getTime()] : this.props.city }},
+      start,
+      end,
+      city: this.props.city,
       age: user.age,
       gender: user.gender,
       image: user.image,
       description: user.description,
-      id: user.id
+      id: user.id,
     };
-    console.log(relevantUserInfo)
-
-    firebase.database().ref(`users/${id}/requests/${user.id}`).set(relevantUserInfo)
-  //  newRef.set()
+    firebase.database().ref(`users/${id}/requests/${user.id}`).set(relevantUserInfo);
+    firebase.database().ref(`users/${user.id}/invites/${id}`).set({ occupied: true });
   }
 
   getUsers = (matchedUsers) => {
@@ -85,7 +87,19 @@ class SearchWingman extends Component {
     const userProfiles = [];
     matchedUsers.forEach((user) => {
       firebase.database().ref(`users/${user}`).once('value').then((userInfo) => {
-        userProfiles.push(userInfo.val());
+        const matchedRequests = userInfo.val().requests;
+        let info = userInfo.val()
+        let ifAdd = true;
+        for (const key in matchedRequests) {
+          if (matchedRequests[key].id === this.props.reduxStoreProps.user.id) {
+            console.log('in im');
+            ifAdd = false;
+
+            info.invited = true;
+          }
+        }
+        console.log(info)
+        userProfiles.push(info);
         this.setState({ userProfiles });
       });
     });
@@ -117,9 +131,7 @@ class SearchWingman extends Component {
       <View>
         {this.renderHeader()}
         {this.state.userProfiles ? this.state.userProfiles.map(profile =>
-          <UserRow user={profile} />
-
-        ) : null }
+          <UserRow user={profile} key={profile.id} sendInvite={this.sendInvite} />) : null }
       </View>);
   }
 }

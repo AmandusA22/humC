@@ -14,6 +14,7 @@ import { saveAppStateAction } from '../../redux/modules/saveAppState';
 import { mapStateToProps, getAvailabilityArray } from '../common/functions';
 import AvailabilityRow from '../common/AvailabilityRow';
 export class Calendar extends Component {
+
   constructor(props) {
     super(props);
     this.state = {
@@ -41,45 +42,52 @@ export class Calendar extends Component {
 
   confirmAvailability = () => {
     console.log(this.props);
-    let start = this.state.selectedStartDate
-    let end = this.state.selectedEndDate;
-    const startDate = new Date(start).getTime();
-    const endDate = new Date(end).getTime();
+    let start = this.state.selectedStartDate.getTime();
+    let end = this.state.selectedEndDate.getTime();
+    const startDate = new Date(+start).getTime();
+    const endDate = new Date(+end).getTime();
     firebase.database().ref(`users/${this.props.reduxStoreProps.user.id}/availability/${startDate}`).set({
       start: startDate,
       end: endDate,
       city: this.state.city,
       chats: [],
     });
-    while (start < end) {
-       firebase.database().ref(`${this.state.city}/${start}/${this.props.reduxStoreProps.user.id}`).set({
+    while (new Date(start).getTime() < new Date(end).getTime()) {
+       firebase.database().ref(`${this.state.city}/${startDate}/${this.props.reduxStoreProps.user.id}`).set({
           occupied: 'yes',
-        })
-       var newDate = start.setDate(start.getDate() + 1);
-       start = new Date(newDate);
+       });
+       start += 1000 * 60 * 60 * 24
+      //  const newDate = new Date(start.getDate() + 1);
+      //  //const day = 1000 * 60 * 60 * 24;
+      //  start = new Date(newDate).getDate()
      }
 
      if (!this.props.reduxStoreProps.app_state.tabBar) {
        console.log('!inTab');
        this.props.dispatch(saveAppStateAction({ tabBar: true }))
-       Actions.tabBar() }
-     else { Actions.searchWingman({ start: this.state.selectedStartDate, end: this.state.selectedEndDate, city: this.state.city }); }
+       Actions.tabBar()
+     } else {
+       const transferStartDate = new Date(this.state.selectedStartDate);
+       const transferEndDate = new Date(this.state.selectedEndDate);
+       Actions.searchWingman({ start: startDate, end: transferEndDate, city: this.state.city }); }
    }
 
    getAvailabilityRows = () => {
      console.log(this.state.availabilities)
     if (this.state.availabilities) {
       console.log('inside')
-      return(<View style={{flex: 1}}>
-     {this.state.availabilities.map((availability) => {
-       console.log('mapping')
-       if (availability.start) {
-       return (<AvailabilityRow availability={availability} />)
-     }
-     })}
-
-     </View>)
-   }
+      return(
+        <View style={{flex: 1}}>
+          <Text style={{marginTop: 50, fonSize: 14, fontWeight: 'bold', alignSelf: 'center'}}>Available dates</Text>
+            {this.state.availabilities.map((availability) => {
+              console.log('mapping')
+              if (availability.start) {
+                return (<AvailabilityRow availability={availability} />)
+              }
+            })}
+        </View>
+      );
+    }
    }
 
   render() {

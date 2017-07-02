@@ -9,6 +9,7 @@ import { saveUserInfoAction } from '../../redux/modules/saveUserInfo';
 import { saveAppStateAction } from '../../redux/modules/saveAppState';
 import Header from '../common/Header';
 import { unixToShortDate, mapStateToProps } from '../common/functions';
+import UserRow from '../common/userRow';
 
 class MatchList extends Component {
   constructor() {
@@ -63,26 +64,35 @@ class MatchList extends Component {
   // }
 
   acceptInvite = (user) => {
-    const match = user.match;
-    console.log(match);
-    console.log(user);
-    let startDate;
-    let endDate;
-    let city
-    for (var start in match) {
-      startDate = start;
-      const endDic = match[start];
-      for (var end in endDic) {
-        endDate = end;
-        city = endDic[end];
-      }
-    }
-    const that = this;
-    const availabilityRef = firebase.database().ref(`users/${this.props.reduxStoreProps.user.id}/availability/${startDate}/${endDate}/${city}/${user.id}`);
-    availabilityRef.set({ image: user.image, name: user.name, chatId: `${this.props.reduxStoreProps.user.id}${user.id}`}).then(() => that.removeRequest(user));
+    const start = user.start;
+    // let start;
+    //  for (const startDate in match) {
+    //    start = startDate;
+    //  }
+    const availabilityRef = firebase.database().ref(`users/${this.props.reduxStoreProps.user.id}/availability/${start}/chat/${user.id}`).set({
+      image: user.image, name: user.name, chatId: `${this.props.reduxStoreProps.user.id}${user.id}`}).then(() => this.removeRequest(user))
+
+
+    // console.log(match);
+    // console.log(user);
+    // let startDate;
+    // let endDate;
+    // let city
+    // for (var start in match) {
+    //   startDate = start;
+    //   const endDic = match[start];
+    //   for (var end in endDic) {
+    //     endDate = end;
+    //     city = endDic[end];
+    //   }
+    // }
+    // const that = this;
+    //
+    // const availabilityRef = firebase.database().ref(`users/${this.props.reduxStoreProps.user.id}/availability/${startDate}/${endDate}/${city}/${user.id}`);
+    // availabilityRef.set({ ;
   }
 
-  removeRequest(user) {
+  removeRequest = (user) => {
     console.log('in removeRequest')
     const id = this.props.reduxStoreProps.user.id;
     console.log(user);
@@ -95,7 +105,7 @@ class MatchList extends Component {
     if (this.state.requestUsers.length <= 0) { return}
     return(
       <View>
-        <Text style={{ fontSize: 18}}>Chat invitations</Text>
+        <Text style={{ fontSize: 18, alignSelf: 'center' }}>Chat invitations</Text>
         {this.state.requestUsers.map((user) => {
           let profile;
           for (var key in user) {
@@ -107,21 +117,9 @@ class MatchList extends Component {
           console.log('profile is');
           console.log(profile);
           return (
-            <View style={{ flexDirection: 'row', height: 110 }}>
-              <Image style={{ height: 100, width: 100 }} source={{ uri: profile.image }} />
-              <View>
-              <Text>{profile.name} is a {profile.age} year old {profile.gender} with an interest in
-                      {profile.interest} he would describe himself as {profile.description}
-              </Text>
-                 <Button onPress={() => this.acceptInvite(profile)}>
-                   Accept
-                 </Button>
-                 <Button onPress={() => this.removeRequest(profile)}>Decline</Button>
-              </View>
-            </View>);
-      })}
-      </View>
-    )
+            <UserRow user={profile} key={profile.id} accept={this.acceptInvite} decline={this.removeRequest} />
+    )})}
+  </View>)
 
   }
 
@@ -132,47 +130,63 @@ class MatchList extends Component {
       dates.push({[key]: availability[key]});
     }
     return (dates.map((date) => {
-      for (const start in date) {
-        const endDic = date[start];
-        let end;
-        let city;
-        let matchArr = [];
-        for (const key in endDic) {
-          end = key;
-          const cityDic = endDic[key];
-          if (typeof cityDic !== 'string') {
-          for (const cityKey in cityDic) {
-            city = cityKey;
-            matchArr.push(cityDic[cityKey]);
-          }
-          } else {
-            city = cityDic
-          }
-          city = endDic[key];
-        }
+      console.log(date);
+      let dateValues;
+      for (const key in date) {
+        dateValues = date[key];
+      }
+      let users = [];
+      const chats = dateValues.chat
+      for (const key in chats) {
+        users.push(chats[key]);
+      }
+      // console.log(chatDateValues);
+      // let users = [];
+      // for (const key in chatDateValues) {
+      //   users.push(chatDateValues[key]);
+      // }
+
+      //  const contentDic = date[start];
+        // let end;
+        // let city;
+        // let matchArr = [];
+        // for (const key in endDic) {
+        //   end = key;
+        //   const cityDic = endDic[key];
+        //   if (typeof cityDic !== 'string') {
+        //   for (const cityKey in cityDic) {
+        //     city = cityKey;
+        //     matchArr.push(cityDic[cityKey]);
+        //   }
+        //   } else {
+        //     city = cityDic
+        //   }
+        //   city = endDic[key];
+        // }
         return (
           <View style={{ flex: 1, marginTop: 30, justifyContent: 'center', alignItems: 'center' }}>
             <View>
               <Text style={{ fontSize: 14 }}>
-                {`${unixToShortDate(start)} - ${unixToShortDate(end)} - ${city}`}
+                {`${unixToShortDate(dateValues.start)} - ${unixToShortDate(dateValues.end)} - ${dateValues.city}`}
               </Text>
             </View>
             <ScrollView contentInset={{bottom: 64}}>
-              {matchArr.map((match) => {
-                let user;
-                for (const id in match) {
-                  user = match[id];
-                }
+              {users ? users.map((user) => {
+                console.log(user);
+                // let user;
+                // for (const id in match) {
+                //   user = match[id];
+                // }
               return(
-                <TouchableHighlight onPress={() => this.goToChat(user)}>
+                <TouchableHighlight key={user.id} onPress={() => this.goToChat(user)}>
                   <Image source={{ uri: user.image }} style={{ height: 100, width: 100, borderRadius: 50, marginTop: 20 }} />
                 </TouchableHighlight>
               )
-            })}
+            }) : null}
             </ScrollView>
           </View>
         )
-      }
+
     }));
   }
 

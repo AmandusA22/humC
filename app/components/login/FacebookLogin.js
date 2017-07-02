@@ -49,17 +49,25 @@ export class Login extends Component {
   checkIfExistingUser(facebookData) {
     const that = this
     firebase.database().ref(`users/${facebookData.uid}`).once('value').then(function(data) {
+      if (!data.val()) {
+        return that.setUpNewUser(facebookData);
+      }
       if (data.val().age) {
-        that.goToTabMenu(facebookData.uid);
+        return that.goToTabMenu(facebookData.uid);
       } else {
-        const saveUserData = { name: facebookData.displayName,
-          profile_picture: facebookData.photoURL,
-          id: facebookData.uid };
-        firebase.database().ref(`users/${facebookData.uid}`).set(saveUserData).then(
-          that.handleNewUser(saveUserData),
-        );
+        return that.setUpNewUser(facebookData)
       }
     });
+  }
+
+  setUpNewUser = (facebookData) => {
+    const saveUserData = { name: facebookData.displayName,
+      profile_picture: facebookData.photoURL,
+      id: facebookData.uid };
+    firebase.database().ref(`users/${facebookData.uid}`).set(saveUserData).then(
+      this.handleNewUser(saveUserData),
+    );
+
   }
 
   componentDidMount() {
