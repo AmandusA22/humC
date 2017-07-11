@@ -1,4 +1,7 @@
 import FBSDK, { LoginButton, LoginManager, AccessToken } from 'react-native-fbsdk';
+
+import { FBLogin, FBLoginManager } from 'react-native-facebook-login';
+
 import { View, StyleSheet, Text, Image, Dimensions } from 'react-native';
 import React, { Component } from 'react';
 import { Actions } from 'react-native-router-flux';
@@ -71,14 +74,35 @@ export class Login extends Component {
   }
 
   componentDidMount() {
-    AccessToken.getCurrentAccessToken().then(
-      (data) => {
-        console.log(data);
-        if (data.accessToken) {
-          this.login();
-        }
-      },
-    );
+    const that = this
+    firebase.auth().onAuthStateChanged(function(user) {
+      if(user) {
+        that.checkIfExistingUser(user);
+
+    // User is signed in.
+    } else {
+    // No user is signed in.
+      }
+    });
+    this.createUser()
+  //  emailLogin()
+    // AccessToken.getCurrentAccessToken().then(
+    //   (data) => {
+    //     console.log(data);
+    //     if (data.accessToken) {
+    //       this.login();
+    //     }
+    //   },
+    // );
+  }
+
+  createUser = () => {
+    firebase.auth().signInWithEmailAndPassword('ab8ma@live.se', '123456å').then(() => {
+  // Handle Errors here.
+    // var errorCode = error.code;
+    // var errorMessage = error.message;
+  // ...
+    });
   }
 
   goToUserSetup() {
@@ -131,7 +155,7 @@ export class Login extends Component {
       <Text style={{fontSize: 22, marginBottom: 30, marginTop: 60}}>Meet your future wingman today</Text>
       <Text style={{fontSize: 18, color: 'gray', marginLeft: 30, marginRight: 30, justifyContent: 'center', textAlign: 'center'}}> Find the wingmans that are best for your own personality and availability.</Text>
       <View style={{marginTop: 30}}>
-      <LoginButton onLoginFinished={() => this.login()} />
+        <FBLogin style={{ marginBottom: 10 }} />
       </View>
     </View>
   );
