@@ -31,9 +31,9 @@ const styles = StyleSheet.create({
   },
   footer: {
     alignItems: 'center',
-justifyContent: 'center',
-backgroundColor: 'transparent',
-  }
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+  },
 });
 
  const config = {
@@ -97,12 +97,14 @@ export class Login extends Component {
   }
 
   createUser = () => {
-    firebase.auth().signInWithEmailAndPassword('ab8ma@live.se', '123456å').then(() => {
-  // Handle Errors here.
-    // var errorCode = error.code;
-    // var errorMessage = error.message;
-  // ...
-    });
+    firebase.auth().signInWithEmailAndPassword('qa@live.se', '123456').then(() => {
+    })
+  //   firebase.auth().createUserWithEmailAndPassword('qaaa@live.se', '123456').then(() => {
+  // // Handle Errors here.
+  //   // var errorCode = error.code;
+  //   // var errorMessage = error.message;
+  // // ...
+  //   });
   }
 
   goToUserSetup() {

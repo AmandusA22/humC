@@ -286,15 +286,20 @@ class CreateProfile extends Component {
 
   sendCreateProfile = () => {
     const saveData = {
-      age: this.state.age,
-      interest: this.state.interest,
-      gender: this.state.gender,
-      image: this.state.image,
-      name: this.state.name,
-      description: this.state.description,
+      age: this.state.age ? this.state.age : 'unknown',
+      interest: this.state.interest ? this.state.interest : 'no interest',
+      gender: this.state.gender ? this.state.gender : 'unknown gender',
+      image: this.state.image ? this.state.image : 'https://upload.wikimedia.org/wikipedia/commons/e/e0/Question-mark-blackandwhite.png',
+      name: this.state.name ? this.state.name : 'nameless',
+      description: this.state.description ? this.state.description : 'descriptionless',
     };
     firebase.database().ref(`users/${this.props.reduxStoreProps.user.id}`).update(saveData)
     this.props.dispatch(saveUserInfoAction(saveData))
+
+    if (!this.props.reduxStoreProps.app_state) {
+      return Actions.calendar()
+    }
+
     if (this.props.reduxStoreProps.app_state.tabBar) {
       console.log('in tabbar');
       return Actions.CalendarTab();
