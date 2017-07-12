@@ -97,14 +97,14 @@ export class Login extends Component {
   }
 
   createUser = () => {
-    firebase.auth().signInWithEmailAndPassword('qa@live.se', '123456').then(() => {
-    })
-  //   firebase.auth().createUserWithEmailAndPassword('qaaa@live.se', '123456').then(() => {
-  // // Handle Errors here.
-  //   // var errorCode = error.code;
-  //   // var errorMessage = error.message;
-  // // ...
-  //   });
+    // firebase.auth().signInWithEmailAndPassword('qa@live.se', '123456').then(() => {
+    // })
+    firebase.auth().createUserWithEmailAndPassword('qaaaaa@live.se', '123456').then(() => {
+  // Handle Errors here.
+    // var errorCode = error.code;
+    // var errorMessage = error.message;
+  // ...
+    });
   }
 
   goToUserSetup() {
