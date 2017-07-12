@@ -72,12 +72,15 @@ class MatchList extends Component {
     //  for (const startDate in match) {
     //    start = startDate;
     //  }
-    const that = this
+    const that = this;
+    const chatInfoForUs = {image: user.image, name: user.name, chatId: `${this.props.reduxStoreProps.user.id}${user.id}`}
+    const chatInfoForThem = {image: this.props.reduxStoreProps.user.image, name: this.props.reduxStoreProps.user.name, chatId: `${this.props.reduxStoreProps.user.id}${user.id}`}
+    const theirAvailabilityRef = firebase.database().ref(`users/${user.id}/availability/${start}/chat/${this.props.reduxStoreProps.user.id}`);
     const availabilityRef = firebase.database().ref(`users/${this.props.reduxStoreProps.user.id}/availability/${start}/chat/${user.id}`).set({
-      image: user.image, name: user.name, chatId: `${this.props.reduxStoreProps.user.id}${user.id}`}).then(() => {
-        getAvailabilityArray(this.props.reduxStoreProps.user.id).then(availability => that.setState({ availability }));
-        this.removeRequest(user)});
-
+      image: user.image, name: user.name, chatId: `${this.props.reduxStoreProps.user.id}${user.id}` }).then(() => {
+        theirAvailabilityRef.set(chatInfoForThem).then(() =>
+        getAvailabilityArray(this.props.reduxStoreProps.user.id).then(availability => that.setState({ availability })));
+        this.removeRequest(user) });
   }
 
   removeRequest = (user) => {
