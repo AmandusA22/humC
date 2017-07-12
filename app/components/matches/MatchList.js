@@ -1,6 +1,6 @@
 
 import FBSDK, { LoginButton, LoginManager, AccessToken } from 'react-native-fbsdk';
-import { View, ScrollView, StyleSheet, Text, Image, TouchableHighlight } from 'react-native';
+import { View, ScrollView, StyleSheet, Text, Image, TouchableHighlight, ListView } from 'react-native';
 import React, { Component } from 'react';
 import { Actions } from 'react-native-router-flux';
 import Button from 'react-native-button';
@@ -114,6 +114,7 @@ class MatchList extends Component {
   renderChatDates = () => {
     var dates = [];
     const availability = this.state.availability;
+    console.log(availability);
     for (var key in availability) {
       dates.push({ [key]: availability[key]});
     }
@@ -131,6 +132,8 @@ class MatchList extends Component {
       if (!chats) {
         return;
       }
+      const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+      const dataSource = ds.cloneWithRows(users)
       return (
         <View key={index} style={{ flex: 1, marginTop: 30, justifyContent: 'center', alignItems: 'center' }}>
           <View>
@@ -138,23 +141,32 @@ class MatchList extends Component {
               {`${unixToShortDate(dateValues.start)} - ${unixToShortDate(dateValues.end)} - ${dateValues.city}`}
             </Text>
           </View>
-      <ScrollView contentInset={{ bottom: 64 }} horizontal={true} style={{flexDirection: 'row'}}>
-        {users ? users.map((user, index) => {
-          console.log(user.image);
-        return(
-          <TouchableHighlight key={index} onPress={() => this.goToChat(user)}>
-
-            <Image source={{ uri: user.image }} style={{ height: 100, width: 100, borderRadius: 50, marginTop: 20, marginHorizontal: 8 }} />
-
-          </TouchableHighlight>
-        )
-      }) : null}
-      </ScrollView>
-
-  </View>
-
-)}))
+          <ListView
+            horizontal
+            dataSource={dataSource}
+            renderRow={user =>
+              <TouchableHighlight key={index} onPress={() => this.goToChat(user)}>
+                <Image source={{ uri: user.image }} style={{ height: 100, width: 100, borderRadius: 50, marginTop: 20, marginHorizontal: 8 }} />
+              </TouchableHighlight>}
+          />
+        </View>
+      ) }))
   }
+  //
+  // <ScrollView contentInset={{ bottom: 64 }} horizontal={true} showsVerticalScrollIndicator={false}>
+  //   {users ? users.map((user, index) => {
+  //     console.log(user.image);
+  //   return(
+  //     <TouchableHighlight key={index} onPress={() => this.goToChat(user)}>
+  //
+  //       <Image source={{ uri: user.image }} style={{ height: 100, width: 100, borderRadius: 50, marginTop: 20, marginHorizontal: 8 }} />
+  //
+  //     </TouchableHighlight>
+  //   )
+  // }) : null}
+  // </ScrollView>
+
+
   // <View>
   //   <Text style={{ fontSize: 14 }}>
   //     {`${unixToShortDate(dateValues.start)} - ${unixToShortDate(dateValues.end)} - ${dateValues.city}`}

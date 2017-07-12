@@ -43,11 +43,12 @@ class Chat extends React.Component {
 
   componentWillMount() {
     this._isMounted = true;
-    this.setState(() => {
-      return {
-        messages: [],
-      };
-    });
+    this.getMessages();
+    // this.setState(() => {
+    //   return {
+    //     messages: [],
+    //   };
+    // });
   }
 
   componentWillUnmount() {
@@ -74,20 +75,38 @@ class Chat extends React.Component {
     }, 1000); // simulating network
   }
 
+  getMessages() {
+    firebase.database().ref(`chats/${this.props.user.chatId}`).on('value', ((chat) => {
+      console.log('got value');
+      let dbMessages = chat.val()
+      console.log(chat.val());
+      let messages = [];
+      for (const key in dbMessages) {
+        if (dbMessages[key][0]) {
+          messages.push(dbMessages[key][0])
+        }
+      }
+      //const newList = this.state.messages.push(chat.val())
+      //this.setState({})
+      this.setState({ messages });
+    }));
+  }
+
+
   onSend(messages = []) {
     console.log(messages);
     console.log(this.state);
     console.log(this.props);
-    firebase.database().ref(`chats/${this.props.user.chatId}`).set(messages);
+    firebase.database().ref(`chats/${this.props.user.chatId}`).push(messages);
 
-    this.setState((previousState) => {
-      return {
-        messages: GiftedChat.append(previousState.messages, messages),
-      };
-    });
+    // this.setState((previousState) => {
+    //   return {
+    //     messages: GiftedChat.append(previousState.messages, messages),
+    //   };
+    // });
 
     // for demo purpose
-    this.answerDemo(messages);
+  //  this.answerDemo(messages);
   }
 
   answerDemo(messages) {
