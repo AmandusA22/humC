@@ -1,3 +1,4 @@
+
 import FBSDK, { LoginButton, LoginManager, AccessToken } from 'react-native-fbsdk';
 import { View, ScrollView, StyleSheet, Text, Image, TouchableHighlight } from 'react-native';
 import React, { Component } from 'react';
@@ -8,7 +9,9 @@ import { connect } from 'react-redux';
 import { saveUserInfoAction } from '../../redux/modules/saveUserInfo';
 import { saveAppStateAction } from '../../redux/modules/saveAppState';
 import Header from '../common/Header';
-import { unixToShortDate, mapStateToProps } from '../common/functions';
+import { ifURL } from '../common/functions';
+
+import { unixToShortDate, mapStateToProps, getAvailabilityArray } from '../common/functions';
 import UserRow from '../common/userRow';
 
 class MatchList extends Component {
@@ -19,6 +22,7 @@ class MatchList extends Component {
 
   componentDidMount() {
     this.getRequests();
+    getAvailabilityArray(`${this.props.reduxStoreProps.user.id}`).then(availability => this.setState({ availability }));
     // console.log('in component did mount');
     // const id = this.props.reduxStoreProps.user.id;
     // const requeststRef = firebase.database().ref('users/' + id);
@@ -40,10 +44,6 @@ class MatchList extends Component {
         console.log(this.state.requestUsers);
       } else {
         const requests = [];
-        // for (const key in request.val()) {
-        //   console.log(request.val())
-        //   requests.push(request.val()[key]);
-        // }
         console.log(request.val());
         console.log(this.state.requestUsers);
         this.setState({requestUsers: [request.val()]})
@@ -64,32 +64,20 @@ class MatchList extends Component {
   // }
 
   acceptInvite = (user) => {
+    console.log(user);
+    console.log(user.start);
+    console.log(user.id);
     const start = user.start;
     // let start;
     //  for (const startDate in match) {
     //    start = startDate;
     //  }
+    const that = this
     const availabilityRef = firebase.database().ref(`users/${this.props.reduxStoreProps.user.id}/availability/${start}/chat/${user.id}`).set({
-      image: user.image, name: user.name, chatId: `${this.props.reduxStoreProps.user.id}${user.id}`}).then(() => this.removeRequest(user))
+      image: user.image, name: user.name, chatId: `${this.props.reduxStoreProps.user.id}${user.id}`}).then(() => {
+        getAvailabilityArray(this.props.reduxStoreProps.user.id).then(availability => that.setState({ availability }));
+        this.removeRequest(user)});
 
-
-    // console.log(match);
-    // console.log(user);
-    // let startDate;
-    // let endDate;
-    // let city
-    // for (var start in match) {
-    //   startDate = start;
-    //   const endDic = match[start];
-    //   for (var end in endDic) {
-    //     endDate = end;
-    //     city = endDic[end];
-    //   }
-    // }
-    // const that = this;
-    //
-    // const availabilityRef = firebase.database().ref(`users/${this.props.reduxStoreProps.user.id}/availability/${startDate}/${endDate}/${city}/${user.id}`);
-    // availabilityRef.set({ ;
   }
 
   removeRequest = (user) => {
@@ -102,34 +90,34 @@ class MatchList extends Component {
 
   renderRequests() {
     console.log(this.state.requestUsers)
-    if (this.state.requestUsers.length <= 0) { return}
-    return(
+    if (this.state.requestUsers.length <= 0) { return };
+    return (
       <View>
         <Text style={{ fontSize: 18, alignSelf: 'center' }}>Chat invitations</Text>
-        {this.state.requestUsers.map((user) => {
+        {this.state.requestUsers.map((user, index) => {
           let profile;
           for (var key in user) {
             profile = user[key]
           }
           if (!profile) {
-            return;
-          }
-          console.log('profile is');
-          console.log(profile);
+            return;}
           return (
-            <UserRow user={profile} key={profile.id} accept={this.acceptInvite} decline={this.removeRequest} />
-    )})}
-  </View>)
-
+            <UserRow key={index} user={profile} key={profile.id} accept={this.acceptInvite} decline={this.removeRequest} />
+            )}
+          )
+        }
+      </View>);
   }
+
+
 
   renderChatDates = () => {
     var dates = [];
-    const availability = this.props.reduxStoreProps.user.availability;
+    const availability = this.state.availability;
     for (var key in availability) {
-      dates.push({[key]: availability[key]});
+      dates.push({ [key]: availability[key]});
     }
-    return (dates.map((date) => {
+    return (dates.map((date, index) => {
       console.log(date);
       let dateValues;
       for (const key in date) {
@@ -140,56 +128,49 @@ class MatchList extends Component {
       for (const key in chats) {
         users.push(chats[key]);
       }
-      // console.log(chatDateValues);
-      // let users = [];
-      // for (const key in chatDateValues) {
-      //   users.push(chatDateValues[key]);
-      // }
-
-      //  const contentDic = date[start];
-        // let end;
-        // let city;
-        // let matchArr = [];
-        // for (const key in endDic) {
-        //   end = key;
-        //   const cityDic = endDic[key];
-        //   if (typeof cityDic !== 'string') {
-        //   for (const cityKey in cityDic) {
-        //     city = cityKey;
-        //     matchArr.push(cityDic[cityKey]);
-        //   }
-        //   } else {
-        //     city = cityDic
-        //   }
-        //   city = endDic[key];
-        // }
-        return (
-          <View style={{ flex: 1, marginTop: 30, justifyContent: 'center', alignItems: 'center' }}>
-            <View>
-              <Text style={{ fontSize: 14 }}>
-                {`${unixToShortDate(dateValues.start)} - ${unixToShortDate(dateValues.end)} - ${dateValues.city}`}
-              </Text>
-            </View>
-            <ScrollView contentInset={{bottom: 64}}>
-              {users ? users.map((user) => {
-                console.log(user);
-                // let user;
-                // for (const id in match) {
-                //   user = match[id];
-                // }
-              return(
-                <TouchableHighlight key={user.id} onPress={() => this.goToChat(user)}>
-                  <Image source={{ uri: user.image }} style={{ height: 100, width: 100, borderRadius: 50, marginTop: 20 }} />
-                </TouchableHighlight>
-              )
-            }) : null}
-            </ScrollView>
+      if (!chats) {
+        return;
+      }
+      return (
+        <View key={index} style={{ flex: 1, marginTop: 30, justifyContent: 'center', alignItems: 'center' }}>
+          <View>
+            <Text style={{ fontSize: 14 }}>
+              {`${unixToShortDate(dateValues.start)} - ${unixToShortDate(dateValues.end)} - ${dateValues.city}`}
+            </Text>
           </View>
+      <ScrollView contentInset={{ bottom: 64 }} horizontal={true} style={{flexDirection: 'row'}}>
+        {users ? users.map((user, index) => {
+          console.log(user.image);
+        return(
+          <TouchableHighlight key={index} onPress={() => this.goToChat(user)}>
+
+            <Image source={{ uri: user.image }} style={{ height: 100, width: 100, borderRadius: 50, marginTop: 20, marginHorizontal: 8 }} />
+
+          </TouchableHighlight>
         )
+      }) : null}
+      </ScrollView>
 
-    }));
+  </View>
+
+)}))
   }
-
+  // <View>
+  //   <Text style={{ fontSize: 14 }}>
+  //     {`${unixToShortDate(dateValues.start)} - ${unixToShortDate(dateValues.end)} - ${dateValues.city}`}
+  //   </Text>
+  // </View>
+  // <ScrollView contentInset={{ bottom: 64 }}>
+  //   {users ? users.map((user, index) => {
+  //   return(
+  //     <TouchableHighlight key={index} onPress={() => this.goToChat(user)}>
+  //       {ifURL(user.image) ?
+  //       <Image source={{ uri: user.image }} style={{ height: 100, width: 100, borderRadius: 50, marginTop: 20 }} />
+  //       : null}
+  //     </TouchableHighlight>
+  //   )
+  // }) : null}
+  // </ScrollView>
   removeDatesAlert = (start) => {
 
   }
@@ -205,9 +186,9 @@ class MatchList extends Component {
   render() {
     return (
       <ScrollView>
-       <Header variant="transparent" title="Chats" />
-       <View>
-        {this.renderRequests()}
+        <Header variant="transparent" title="Chats" />
+        <View>
+          {this.renderRequests()}
         </View>
         <View>
           {this.renderChatDates()}

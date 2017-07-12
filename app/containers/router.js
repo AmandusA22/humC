@@ -36,8 +36,9 @@ export default class router extends Component {
           <Scene key="root">
             <Scene key="LoginWithFacebook" component={LoginWithFacebook} hideNavBar />
             <Scene key="createProfile" inTab={false} component={CreateProfile} hideNavBar />
+              <Scene key="calendar" inTab={false} component={Calendar} hideNavBar />
+
  <Scene key="tabBar" tabs hideNavBar inTab={true} tabBarStyle={style.tabBarStyle}>
-            <Scene key="calendar" inTab={false} component={Calendar} hideNavBar />
             <Scene key="calendarTab" inital="calendarTab" initial title="Calendar" icon={TabIcon}>
                 <Scene key="CalendarTab" title="Calendar" component={Calendar} icon={TabIcon} hideNavBar />
                 <Scene key="searchWingman" component={SearchWingman} icon={TabIcon} hideNavBar />

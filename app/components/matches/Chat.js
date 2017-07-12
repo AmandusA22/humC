@@ -25,8 +25,8 @@ class Chat extends React.Component {
     super(props);
     this.state = {
       messages: [],
-      loadEarlier: true,
-      typingText: true,
+      loadEarlier: false,
+      typingText: false,
       isLoadingEarlier: false,
     };
 
@@ -45,7 +45,7 @@ class Chat extends React.Component {
     this._isMounted = true;
     this.setState(() => {
       return {
-        messages: require('./data/messages.js'),
+        messages: [],
       };
     });
   }
@@ -95,7 +95,7 @@ class Chat extends React.Component {
       if ((messages[0].image || messages[0].location) || !this._isAlright) {
         this.setState((previousState) => {
           return {
-            typingText: 'React Native is typing'
+            typingText: ''
           };
         });
       }
@@ -111,7 +111,7 @@ class Chat extends React.Component {
           } else {
             if (!this._isAlright) {
               this._isAlright = true;
-              this.onReceive('Alright');
+              this.onReceive('reply looks like this');
             }
           }
         }
@@ -134,7 +134,7 @@ class Chat extends React.Component {
           createdAt: new Date(),
           user: {
             _id: 2,
-            name: 'React Native',
+            name: 'Amandus Axelsson',
             // avatar: 'https://facebook.github.io/react/img/logo_og.png',
           },
         }),
@@ -219,7 +219,7 @@ class Chat extends React.Component {
     const ourID = this.props.reduxStoreProps.user.id;
     const pathInAvailability = `availability/${this.props.path}`;
     const theirId = this.props.user.id
-    firebase.database().ref(`users/${userID}/${pathInAvailability}/${theirId}`).remove();
+    firebase.database().ref(`users/${ourID}/${pathInAvailability}/${theirId}`).remove();
   }
 
   leftHeader = () => <TouchableHighlight onPress={() => this.toMatch()}>

@@ -8,6 +8,7 @@ import {unixToShortDate} from '../functions'
 
 function AvailabilityRow(props) {
   console.log('in availabilityRow')
+  console.log(props.availability)
   return (
     <View style={[styles.container, ...(props.style ? [props.style] : [])]}>
     <View style={{flexDirection: 'row'}}>
@@ -16,7 +17,7 @@ function AvailabilityRow(props) {
             <Text style={styles.loanAmountLabel}>{`${unixToShortDate(props.availability.start)} --> ${unixToShortDate(props.availability.end)}`}
             </Text>
           </View>
-          <Button onPress={props.setValue} style={{marginRight: 20, fontSize: 16, color: 'green', textAlign: 'center'}}>
+          <Button onPress={() => props.findWingman(props.availability)} style={{marginRight: 20, fontSize: 16, color: 'green', textAlign: 'center'}}>
           Find wingman
           </Button>
         </View>
@@ -33,7 +34,7 @@ function AvailabilityRow(props) {
           </View>
           <View style={styles.footerItem}>
 
-          <Button onPress={props.setValue} style={{marginRight: 20, fontSize: 16, color: 'red', textAlign: 'center'}}>
+          <Button onPress={() => props.removeAvailability(props.availability)} style={{marginRight: 20, fontSize: 16, color: 'red', textAlign: 'center'}}>
             Cancel availability
           </Button>
           </View>

@@ -12,10 +12,10 @@ import Button from 'react-native-button';
 import BackIcon from '../../images/back-icon.png';
 import Header from '../common/Header';
 import { connect } from 'react-redux';
-import getUserRow from '../common/userRow';
 import { mapStateToProps } from '../common/functions';
 import { Actions } from 'react-native-router-flux';
 import UserRow from '../common/userRow';
+import { unixToShortDate } from '../common/functions';
 
 class SearchWingman extends Component {
 
@@ -39,7 +39,9 @@ class SearchWingman extends Component {
     const matchedUsers = [];
     const that = this;
     while(start < end) {
-      firebase.database().ref(`${this.props.city}/${start}`)
+      console.log('loading');
+      const date = unixToShortDate(start);
+      firebase.database().ref(`${this.props.city}/${date}`)
       .once('value').then((data) => {
         console.log(data.val())
         for (const key in data.val()) {
@@ -131,10 +133,15 @@ class SearchWingman extends Component {
       <View>
         {this.renderHeader()}
         {this.state.userProfiles ? this.state.userProfiles.map(profile =>
-          <UserRow user={profile} key={profile.id} sendInvite={this.sendInvite} />) : null }
+          <UserRow user={profile} key={profile.id} sendInvite={this.sendInvite} />)
+           : null }
       </View>);
   }
 }
+//<UserRow user={profile} key={profile.id} sendInvite={this.sendInvite} />)
+// {this.renderHeader()}
+// {this.state.userProfiles ? this.state.userProfiles.map(profile =>
+//   <UserRow user={profile} key={profile.id} sendInvite={this.sendInvite} />) : null }
 
 // <View style={{ flexDirection: 'row', height: 110 }}>
 //   <Image style={{ height: 100, width: 100 }} source={{ uri: profile.image }} />

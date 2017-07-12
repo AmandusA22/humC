@@ -1,3 +1,4 @@
+
 import React, { Component } from 'react';
 import { View, Image, Text, Linking, Platform, Dimensions } from 'react-native';
 import Button from 'react-native-button';
@@ -5,7 +6,17 @@ import styles from './styles';
 
 const invite = [{text: 'Invite', color: 'green'}, {text: 'Uninvite', color: 'red'}]
 
-class UserRow extends Component {
+function isURL(str) {
+  var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+  '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|'+ // domain name
+  '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+  '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+  '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+  '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+  return pattern.test(str);
+}
+
+export default class UserRow extends Component {
 
   constructor() {
     super()
@@ -31,12 +42,13 @@ class UserRow extends Component {
   }
 
   render() {
+    console.log('in userropw')
     const props = this.props;
     return (
       <View style={[styles.container, ...(props.style ? [props.style] : [])]}>
-      <View style={{flexDirection: 'row'}}>
-      <View style={{flexDirection: 'column'}}>
-        <Image style={{height: 100, width: 100}} source={{ uri: props.user.image }} />
+      <View style={{ flexDirection: 'row' }}>
+      <View style={{ flexDirection: 'column' }}>
+        { <Image style={{ height: 100, width: 100 }} source={{ uri: props.user.image }} /> }
         </View>
         <View style={{flexDirection: 'column', marginLeft: 10, width: Dimensions.get('window').width - 120}}>
           <View style={styles.body}>
@@ -70,15 +82,9 @@ class UserRow extends Component {
               <Text style={styles.footerItemText}>Description</Text>
             </View>
             </View>
-
             </View>
           </View>
       </View>
     );
   }
 }
-
-
-
-
-export default UserRow;

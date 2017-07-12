@@ -1,3 +1,4 @@
+
 import React, { Component } from 'react';
 import {
   View,
@@ -44,13 +45,12 @@ const styles = StyleSheet.create({
   },
   numberInputText: {
     lineHeight: 30,
-    //borderBottomWidth: 1,
     borderColor: 'gray',
     color: 'black',
     marginLeft: 40,
     marginRight: 10,
     height: 30,
-    width: '70%',
+  //  width: '70%',
     textAlign: 'center',
   },
   descriptionBox: {
@@ -67,7 +67,6 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     lineHeight: 20,
     height: 150,
-    width: '97%',
   },
   standardText: {
     lineHeight: 20,
@@ -75,7 +74,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   standardButton: {
-    fontSize: 16,
+
     color: 'rgb(33,150,243)',
     lineHeight: 20,
     marginLeft: 10,
@@ -182,7 +181,7 @@ class CreateProfile extends Component {
         onValueChange={age => this.setState({ age })}
       >
         {Array(100).fill(' ').map((value, index) =>
-          <Picker.Item label={`${index}`} value={`${index}`} />,
+          <Picker.Item label={`${index}`} key={index} value={`${index}`} />,
         )}
       </Picker>
     </View>
@@ -270,7 +269,7 @@ class CreateProfile extends Component {
     </View>
 
   updateImage = (image) => {
-    console.log('update iage')
+    console.log('update image')
     this.setState({ image, showImagePicker: false, showTakePicture: false });
     // console.log(image);
   }
@@ -286,24 +285,25 @@ class CreateProfile extends Component {
 
   sendCreateProfile = () => {
     const saveData = {
-      age: this.state.age ? this.state.age : 'unknown',
-      interest: this.state.interest ? this.state.interest : 'no interest',
-      gender: this.state.gender ? this.state.gender : 'unknown gender',
-      image: this.state.image ? this.state.image : 'https://upload.wikimedia.org/wikipedia/commons/e/e0/Question-mark-blackandwhite.png',
-      name: this.state.name ? this.state.name : 'nameless',
-      description: this.state.description ? this.state.description : 'descriptionless',
+      age: this.state.age,
+      interest: this.state.interest,
+      gender: this.state.gender,
+      image: this.state.image,
+      name: this.state.name,
+      description: this.state.description,
     };
     firebase.database().ref(`users/${this.props.reduxStoreProps.user.id}`).update(saveData)
     this.props.dispatch(saveUserInfoAction(saveData))
-
+    console.log('sending');
     if (!this.props.reduxStoreProps.app_state) {
+      console.log('no app state')
       return Actions.calendar()
     }
-
     if (this.props.reduxStoreProps.app_state.tabBar) {
       console.log('in tabbar');
       return Actions.CalendarTab();
     }
+    console.log('all passed')
     Actions.calendar()
 
   }
@@ -327,7 +327,7 @@ class CreateProfile extends Component {
           <LoginButton onLogoutFinished={this.logout} />
         </View>
       {this.GetUIComponents().map((value, index) =>
-        <View style={{flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 30}}>
+        <View key={index} style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 30 }}>
 
           {value}
         </View>

@@ -11,7 +11,7 @@ import { Actions } from 'react-native-router-flux';
 import * as firebase from 'firebase';
 import { connect } from 'react-redux';
 import { saveAppStateAction } from '../../redux/modules/saveAppState';
-import { mapStateToProps, getAvailabilityArray } from '../common/functions';
+import { mapStateToProps, getAvailabilityArray, unixToShortDate } from '../common/functions';
 import AvailabilityRow from '../common/AvailabilityRow';
 export class Calendar extends Component {
 
@@ -24,7 +24,8 @@ export class Calendar extends Component {
   }
 
   componentDidMount() {
-    getAvailabilityArray(`${this.props.reduxStoreProps.user.id}`).then(availabilities => this.setState({ availabilities }));
+  //  getAvailabilityArray(`${this.props.reduxStoreProps.user.id}`).then(availabilities => this.setState({ availabilities }));
+    this.availabilityListener(this.props.reduxStoreProps.user.id);
   }
 
   onDateChange = (date, type) => {
@@ -53,13 +54,11 @@ export class Calendar extends Component {
       chats: [],
     });
     while (new Date(start).getTime() < new Date(end).getTime()) {
-       firebase.database().ref(`${this.state.city}/${startDate}/${this.props.reduxStoreProps.user.id}`).set({
+      const date = unixToShortDate(start)
+       firebase.database().ref(`${this.state.city}/${date}/${this.props.reduxStoreProps.user.id}`).set({
           occupied: 'yes',
        });
        start += 1000 * 60 * 60 * 24
-      //  const newDate = new Date(start.getDate() + 1);
-      //  //const day = 1000 * 60 * 60 * 24;
-      //  start = new Date(newDate).getDate()
      }
 
      if (!this.props.reduxStoreProps.app_state.tabBar) {
@@ -72,23 +71,46 @@ export class Calendar extends Component {
        Actions.searchWingman({ start: startDate, end: transferEndDate, city: this.state.city }); }
    }
 
+   removeAvailabilityPressed = (availability) => {
+     console.log(this.props.reduxStoreProps.user.id);
+     console.log(availability.start);
+     firebase.database().ref(`users/${this.props.reduxStoreProps.user.id}/availability/${availability.start}`).remove();
+     let start = availability.start
+     while (new Date(start).getTime() < new Date(availability.end).getTime()) {
+        firebase.database().ref(`${this.state.city}/${start}/${this.props.reduxStoreProps.user.id}`).remove()
+        start += 1000 * 60 * 60 * 24
+      }
+   }
+
+   availabilityListener(userId) {
+     return firebase.database().ref(`users/${userId}/availability/`).on('value', (availability => {
+       getAvailabilityArray(`${this.props.reduxStoreProps.user.id}`).then(availabilities => this.setState({ availabilities }));
+     }));
+   }
+
+   findWingmanPressed = (availability) => {
+     const transferStartDate = new Date(this.state.selectedStartDate);
+     const transferEndDate = new Date(this.state.selectedEndDate);
+     Actions.searchWingman({ start: availability.start, end: availability.end, city: availability.city });
+   }
+
    getAvailabilityRows = () => {
      console.log(this.state.availabilities)
     if (this.state.availabilities) {
       console.log('inside')
       return(
         <View style={{flex: 1}}>
-          <Text style={{marginTop: 50, fonSize: 14, fontWeight: 'bold', alignSelf: 'center'}}>Available dates</Text>
-            {this.state.availabilities.map((availability) => {
+          <Text style={{marginTop: 50, fontSize: 14, fontWeight: 'bold', alignSelf: 'center'}}>Available dates</Text>
+            {this.state.availabilities.map((availability, index) => {
               console.log('mapping')
               if (availability.start) {
-                return (<AvailabilityRow availability={availability} />)
+                return (<AvailabilityRow key={index} availability={availability} findWingman={this.findWingmanPressed} removeAvailability={this.removeAvailabilityPressed} />)
               }
             })}
         </View>
       );
     }
-   }
+  }
 
   render() {
     const { selectedStartDate, selectedEndDate } = this.state;
@@ -107,7 +129,6 @@ export class Calendar extends Component {
     } else if (displayableStartDate) {
     displayableEndDate = displayableStartDate
   }
-
     return (
       <ScrollView contentInset={{bottom: 44}} style={styles.container} contentContainerStyle={styles.contentContainer}>
         <View style={styles.headerRow}>
@@ -116,24 +137,25 @@ export class Calendar extends Component {
         </View>
         <View style={{marginLeft: 30, marginRight: 30, alignItems: 'center', marginBottom: 30}}>
           {displayableStartDate ?
-             <Text style={styles.text}> Between { displayableStartDate } and { displayableEndDate } </Text>
-               :
-              <Text>Select dates </Text>
+           <Text style={styles.text}> Between { displayableStartDate } and { displayableEndDate } </Text> :
+            <Text>Select dates </Text>
           }
         </View>
-          <CalendarPicker
-            startFromMonday={true}
-            allowRangeSelection={true}
-            minDate={minDate}
-            todayBackgroundColor="#f2e6ff"
-            selectedDayColor="#7300e6"
-            selectedDayTextColor="#FFFFFF"
-            onDateChange={this.onDateChange}
-          />
+        <CalendarPicker
+          startFromMonday={true}
+          allowRangeSelection={true}
+          minDate={minDate}
+          todayBackgroundColor="#f2e6ff"
+          selectedDayColor="#7300e6"
+          selectedDayTextColor="#FFFFFF"
+          onDateChange={this.onDateChange}
+          backgroundColor="#333333"
+          occupiedDates={this.state.availabilities ? this.state.availabilities : []}
+        />
+
           <View style={{marginTop: 30}}>
             <Button onPress={this.confirmAvailability}>Confirm Availability and search Wingman</Button>
               {this.getAvailabilityRows()}
-
           </View>
       </ScrollView>
     );
@@ -154,10 +176,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginLeft: 30,
-    marginRight: 30
+    marginRight: 30,
   },
   text: {
-    lineHeight: 30
+    lineHeight: 30,
   },
 });
 

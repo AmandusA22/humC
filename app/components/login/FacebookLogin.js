@@ -1,6 +1,6 @@
 import FBSDK, { LoginButton, LoginManager, AccessToken } from 'react-native-fbsdk';
 
-import { FBLogin, FBLoginManager } from 'react-native-facebook-login';
+//import { FBLogin, FBLoginManager } from 'react-native-facebook-login';
 
 import { View, StyleSheet, Text, Image, Dimensions } from 'react-native';
 import React, { Component } from 'react';
@@ -157,7 +157,7 @@ export class Login extends Component {
       <Text style={{fontSize: 22, marginBottom: 30, marginTop: 60}}>Meet your future wingman today</Text>
       <Text style={{fontSize: 18, color: 'gray', marginLeft: 30, marginRight: 30, justifyContent: 'center', textAlign: 'center'}}> Find the wingmans that are best for your own personality and availability.</Text>
       <View style={{marginTop: 30}}>
-        <FBLogin style={{ marginBottom: 10 }} />
+        <LoginButton onLoginFinished={this.login} />
       </View>
     </View>
   );
