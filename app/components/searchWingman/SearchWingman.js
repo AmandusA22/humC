@@ -45,10 +45,7 @@ class SearchWingman extends Component {
       .once('value').then((data) => {
         console.log(data.val())
         for (const key in data.val()) {
-          console.log('inside');
-          // if !key in matchedUsers
           if (!matchedUsers.includes(key)) {
-        //  if (matchedUsers.filter(key).length === 0) {
             matchedUsers.push(key);
             console.log(matchedUsers);
             that.setState(() => {
@@ -59,8 +56,6 @@ class SearchWingman extends Component {
         }
       });
       start += 1000 * 60 * 60 * 24;
-      // const newDate = start.setDate(start.getDate() + 1);
-      // start = new Date(newDate);
     }
   }
 
@@ -84,23 +79,40 @@ class SearchWingman extends Component {
     firebase.database().ref(`users/${user.id}/invites/${id}`).set({ occupied: true });
   }
 
+  uninvite = (id) => {
+    const user = this.props.reduxStoreProps.user;
+    firebase.database().ref(`users/${id}/requests/${user.id}`).remove();
+    firebase.database().ref(`users/${user.id}/invites/${id}`).remove();
+  }
+
   getUsers = (matchedUsers) => {
     console.log(matchedUsers);
     const userProfiles = [];
     matchedUsers.forEach((user) => {
       firebase.database().ref(`users/${user}`).once('value').then((userInfo) => {
+        console.log('iterating')
         const matchedRequests = userInfo.val().requests;
-        let info = userInfo.val()
+        let info = userInfo.val();
         let ifAdd = true;
+        console.log(info.id)
+      //  console.log(info.id);
         for (const key in matchedRequests) {
+          // console.log(info.availability[this.props.start].chat);
+          // console.log(matchedRequests[key].id)
+          if(info.availability[this.props.start].chat[matchedRequests[key].id]) {
+            console.log('its a match');
+          }
           if (matchedRequests[key].id === this.props.reduxStoreProps.user.id) {
-            console.log('in im');
-            ifAdd = false;
-
+            //ifAdd = false;
             info.invited = true;
+            //break;
+          }
+          if (info.availability[this.props.start].chat[matchedRequests[key].id]) {
+            info.chatting = true;
+            break;
           }
         }
-        console.log(info)
+        console.log(info);
         userProfiles.push(info);
         this.setState({ userProfiles });
       });
@@ -133,7 +145,7 @@ class SearchWingman extends Component {
       <View>
         {this.renderHeader()}
         {this.state.userProfiles ? this.state.userProfiles.map(profile =>
-          <UserRow user={profile} key={profile.id} sendInvite={this.sendInvite} />)
+          <UserRow user={profile} key={profile.id} uninvite={this.uninvite} sendInvite={this.sendInvite} />)
            : null }
       </View>);
   }

@@ -4,7 +4,7 @@ import { View, Image, Text, Linking, Platform, Dimensions } from 'react-native';
 import Button from 'react-native-button';
 import styles from './styles';
 
-const invite = [{text: 'Invite', color: 'green'}, {text: 'Uninvite', color: 'red'}]
+const invite = [{text: 'Invite', color: 'green'}, {text: 'Uninvite', color: 'red'}, {text: 'In chat', color: 'rgba(31,188,210, 0.5)'}]
 
 function isURL(str) {
   var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
@@ -31,13 +31,16 @@ export default class UserRow extends Component {
       this.props.sendInvite(this.props.user.id)
     } else {
       this.setState({ invite: invite[0] });
-      this.props.unInvite(this.props.user.id)
+      this.props.uninvite(this.props.user.id)
     }
   }
 
   componentDidMount() {
     if (this.props.user.invited) {
-      this.setState({invite: invite[1]});
+      this.setState({ invite: invite[1] });
+    }
+    if (this.props.user.chatting) {
+      this.setState({ invite: invite[2] });
     }
   }
 
@@ -64,7 +67,7 @@ export default class UserRow extends Component {
             <Button onPress={() => props.decline(props.user)} style={{marginRight: 20, color: 'red', textAlign: 'center'}}>
               Decline
             </Button>
-              : <Button onPress={this.setInvite} style={{marginRight: 20, color: this.state.invite.color, textAlign: 'center'}}>
+              : <Button onPress={this.setInvite} disabled={props.user.chatting} style={{ marginRight: 20, color: this.state.invite.color, textAlign: 'center' }}>
             {this.state.invite.text}
           </Button>}
           </View>

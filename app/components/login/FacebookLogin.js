@@ -98,7 +98,7 @@ export class Login extends Component {
 
   createUser = () => {
     firebase.auth().signInWithEmailAndPassword('qaaa@live.se', '123456').then(() => {
-    })
+    });
   //   firebase.auth().createUserWithEmailAndPassword('qaaaaa@live.se', '123456').then(() => {
   // // Handle Errors here.
   //   // var errorCode = error.code;
@@ -109,7 +109,6 @@ export class Login extends Component {
 
   goToUserSetup() {
     Actions.createProfile();
-
   }
 
   handleNewUser(saveData) {
