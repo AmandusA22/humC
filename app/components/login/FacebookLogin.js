@@ -51,6 +51,7 @@ export class Login extends Component {
 
   checkIfExistingUser(facebookData) {
     const that = this
+    console.log(facebookData);
     firebase.database().ref(`users/${facebookData.uid}`).once('value').then(function(data) {
       if (!data.val()) {
         return that.setUpNewUser(facebookData);
@@ -97,7 +98,7 @@ export class Login extends Component {
   }
 
   createUser = () => {
-    firebase.auth().signInWithEmailAndPassword('qaaa@live.se', '123456').then(() => {
+    firebase.auth().signInWithEmailAndPassword('q@live.se', '123456').then(() => {
     });
   //   firebase.auth().createUserWithEmailAndPassword('qaaaaa@live.se', '123456').then(() => {
   // // Handle Errors here.

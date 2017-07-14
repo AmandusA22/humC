@@ -46,7 +46,6 @@ export class Calendar extends Component {
   }
 
   componentDidMount() {
-  //  getAvailabilityArray(`${this.props.reduxStoreProps.user.id}`).then(availabilities => this.setState({ availabilities }));
     this.availabilityListener(this.props.reduxStoreProps.user.id);
   }
 
@@ -64,12 +63,12 @@ export class Calendar extends Component {
   }
 
   removeAvailabilityPressed = (availability) => {
-    console.log(this.props.reduxStoreProps.user.id);
+    const us = this.props.reduxStoreProps.user;
     console.log(availability.start);
-    firebase.database().ref(`users/${this.props.reduxStoreProps.user.id}/availability/${availability.start}`).remove();
+    firebase.database().ref(`users/${us.id}/availability/${availability.start}`).remove();
     let start = availability.start;
     while (new Date(start).getTime() < new Date(availability.end).getTime()) {
-      firebase.database().ref(`${this.state.city}/${start}/${this.props.reduxStoreProps.user.id}`).remove();
+      firebase.database().ref(`${this.state.city}/${start}/${us.id}`).remove();
       start += 1000 * 60 * 60 * 24;
     }
   }
@@ -108,20 +107,22 @@ export class Calendar extends Component {
   }
 
   confirmAvailability = () => {
+    const us = this.props.reduxStoreProps.user;
     let start = this.state.selectedStartDate.getTime();
     const end = this.state.selectedEndDate.getTime();
     const startDate = new Date(+start).getTime();
     const endDate = new Date(+end).getTime();
-    firebase.database().ref(`users/${this.props.reduxStoreProps.user.id}/availability/${startDate}`).set({
+    firebase.database().ref(`users/${us.id}/availability/${startDate}`).set({
       start: startDate,
       end: endDate,
       city: this.state.city,
       chats: [],
     });
-    while (new Date(start).getTime() < new Date(end).getTime()) {
+    while (new Date(start).getTime() <= new Date(end).getTime()) {
       const date = unixToShortDate(start);
-      firebase.database().ref(`${this.state.city}/${date}/${this.props.reduxStoreProps.user.id}`).set({
-        occupied: 'yes',
+      firebase.database().ref(`${this.state.city}/${date}/${us.id}`).set({
+        start: startDate,
+        end: endDate,
       });
       start += 1000 * 60 * 60 * 24;
     }
@@ -134,7 +135,7 @@ export class Calendar extends Component {
       const transferEndDate = new Date(this.state.selectedEndDate);
       Actions.searchWingman({ start: startDate, end: transferEndDate, city: this.state.city });
     } else {
-      this.props.dispatch(saveAppStateAction({ tabBar: true }))
+      this.props.dispatch(saveAppStateAction({ tabBar: true }));
       Actions.tabBar();
     }
   }
@@ -149,7 +150,7 @@ export class Calendar extends Component {
       const startArr = startDate.split(' ')
       displayableStartDate = startArr[0] + ' ' + startArr[1] + ' ' + startArr[2]
     }
-    if (selectedEndDate)  {
+    if (selectedEndDate) {
       const endDate = selectedEndDate.toString();
       const endArr = endDate.split(' ');
       displayableEndDate = `${endArr[0]} ${endArr[1]} ${endArr[2]}`;

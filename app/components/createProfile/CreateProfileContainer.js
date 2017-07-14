@@ -74,7 +74,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   standardButton: {
-
     color: 'rgb(33,150,243)',
     lineHeight: 20,
     marginLeft: 10,
@@ -93,7 +92,7 @@ const styles = StyleSheet.create({
   doneButtonContainer: {
     width: 105,
     height: 45,
-    backgroundColor: '#00cc7a',
+    backgroundColor: 'rgba(76,175,80, 1)',
     borderRadius: 8,
   },
   doneButtonText: {
@@ -144,6 +143,8 @@ class CreateProfile extends Component {
       picker: null,
       showImagePicker: false,
       showTakePicture: false,
+      description: '',
+      name: '',
     };
   }
 
@@ -336,9 +337,10 @@ class CreateProfile extends Component {
       <View style={{ flexDirection: 'row', alignItems: 'center', alignSelf: 'center', marginTop: 40 }}>
         <View style={{height: 40 }} />
         <Button
-          containerStyle={styles.doneButtonContainer}
+          containerStyle={[styles.doneButtonContainer, !this.state.image ? {backgroundColor: 'rgba(76,175,80, 0.2)'} : null]}
           style={styles.doneButtonText}
           onPress={() => this.sendCreateProfile()}
+          disabled={!this.state.image}
         >
           Done
         </Button>

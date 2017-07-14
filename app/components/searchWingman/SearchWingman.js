@@ -22,61 +22,62 @@ class SearchWingman extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      matchedUsers: null,
+      availableUsers: null,
       userProfiles: null,
     };
   }
 
   componentDidMount() {
-    this.loadData();
+    this.getAvailableUsers();
   }
 
-  loadData() {
-    console.log(this.props.start);
-    let start = new Date(+this.props.start).getTime()
-    const end = new Date(+this.props.end).getTime();
+  getAvailableUsers() {
+    let ourNextSearchDayUnix = new Date(+this.props.start).getTime()
+    const ourLastDayUnix = new Date(+this.props.end).getTime();
     console.log(this.props.city);
-    const matchedUsers = [];
+    const availableUsers = [];
     const that = this;
-    while(start < end) {
+    while(ourNextSearchDayUnix < ourLastDayUnix) {
       console.log('loading');
-      const date = unixToShortDate(start);
-      firebase.database().ref(`${this.props.city}/${date}`)
-      .once('value').then((data) => {
-        console.log(data.val())
-        for (const key in data.val()) {
-          if (!matchedUsers.includes(key)) {
-            matchedUsers.push(key);
-            console.log(matchedUsers);
-            that.setState(() => {
-              this.getUsers(matchedUsers);
-              return { matchedUsers };
-            });
-          }
+      const oneAvailableDay = unixToShortDate(ourNextSearchDayUnix);
+      firebase.database().ref(`${this.props.city}/${oneAvailableDay}`)
+      .once('value').then((rawUser) => {
+        const user = rawUser.val();
+        for (const userId in user) {
+          // if (!availableUsers.includes(user)) {
+          availableUsers[userId] = user[userId];
+          that.setState(() => {
+            this.getAvailableUsersInfo(availableUsers);
+            return { availableUsers };
+          });
         }
       });
-      start += 1000 * 60 * 60 * 24;
+      ourNextSearchDayUnix += 1000 * 60 * 60 * 24;
     }
   }
 
-  sendInvite = (id) => {
-    const user = this.props.reduxStoreProps.user;
+  sendInvite = (them) => {
+    console.log(them);
+    const id = them.id;
+    const us = this.props.reduxStoreProps.user;
     const start = new Date(this.props.start).getTime();
     const end = new Date(this.props.end).getTime();
     const relevantUserInfo = {
-      interest: user.interest,
-      name: user.name,
-      start,
-      end,
+      interest: us.interest,
+      name: us.name,
+      invitingUsersFirstAvailableDay: start,
+      invitingUsersLastAvailableDay: end,
+      invitedUsersFirstAvailableDay: them.usersFirstAvailableDay,
+      invitedUsersLastAvailableDay: them.usersLastAvailableDay,
       city: this.props.city,
-      age: user.age,
-      gender: user.gender,
-      image: user.image,
-      description: user.description,
-      id: user.id,
+      age: us.age,
+      gender: us.gender,
+      image: us.image,
+      description: us.description,
+      id: us.id,
     };
-    firebase.database().ref(`users/${id}/requests/${user.id}`).set(relevantUserInfo);
-    firebase.database().ref(`users/${user.id}/invites/${id}`).set({ occupied: true });
+    firebase.database().ref(`users/${id}/requests/${us.id}`).set(relevantUserInfo);
+    firebase.database().ref(`users/${us.id}/invites/${id}`).set({ occupied: true });
   }
 
   uninvite = (id) => {
@@ -85,38 +86,31 @@ class SearchWingman extends Component {
     firebase.database().ref(`users/${user.id}/invites/${id}`).remove();
   }
 
-  getUsers = (matchedUsers) => {
-    console.log(matchedUsers);
+  getAvailableUsersInfo = (availableUsers) => {
+    console.log(availableUsers);
     const userProfiles = [];
-    matchedUsers.forEach((user) => {
-      firebase.database().ref(`users/${user}`).once('value').then((userInfo) => {
-        console.log('iterating')
-        const matchedRequests = userInfo.val().requests;
-        let info = userInfo.val();
-        let ifAdd = true;
-        console.log(info.id)
-      //  console.log(info.id);
-        for (const key in matchedRequests) {
-          // console.log(info.availability[this.props.start].chat);
-          // console.log(matchedRequests[key].id)
-          if(info.availability[this.props.start].chat[matchedRequests[key].id]) {
-            console.log('its a match');
-          }
-          if (matchedRequests[key].id === this.props.reduxStoreProps.user.id) {
-            //ifAdd = false;
-            info.invited = true;
-            //break;
-          }
-          if (info.availability[this.props.start].chat[matchedRequests[key].id]) {
-            info.chatting = true;
-            break;
-          }
-        }
-        console.log(info);
-        userProfiles.push(info);
+    for (const userId in availableUsers) {
+
+      firebase.database().ref(`users/${userId}`).once('value').then((userInfoRaw) => {
+        const userInfo = userInfoRaw.val();
+        console.log(userInfo);
+
+        const relevantUserInfo = {
+          image: userInfo.image,
+          usersFirstAvailableDay: availableUsers[userId].start,
+          usersLastAvailableDay: availableUsers[userId].end,
+          id: userId,
+          name: userInfo.name,
+          description: userInfo.description,
+          interest: userInfo.interest,
+          age: userInfo.age,
+        };
+
+        // console.log(info);
+        userProfiles.push(relevantUserInfo);
         this.setState({ userProfiles });
       });
-    });
+    }
   }
 
   backToCalendar() {
@@ -129,18 +123,18 @@ class SearchWingman extends Component {
 
   renderHeader = () => {
     console.log(this.props.reduxStoreProps)
-    return(
+    return (
       <Header variant="transparent" title="Matches" left={
-      <TouchableHighlight onPress={() => this.backToCalendar()}>
-        <Image source={BackIcon}></Image>
-      </TouchableHighlight>
-
+        <TouchableHighlight onPress={() => this.backToCalendar()}>
+          <Image source={BackIcon} />
+        </TouchableHighlight>
     } />
-    )
+    );
   }
 
   render() {
     console.log('in searchWingman');
+    console.log(this.props);
     return (
       <View>
         {this.renderHeader()}

@@ -28,7 +28,7 @@ export default class UserRow extends Component {
   setInvite = (user) => {
     if (this.state.invite === invite[0]) {
       this.setState({ invite: invite[1] });
-      this.props.sendInvite(this.props.user.id)
+      this.props.sendInvite(this.props.user)
     } else {
       this.setState({ invite: invite[0] });
       this.props.uninvite(this.props.user.id)

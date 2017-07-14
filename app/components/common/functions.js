@@ -16,7 +16,19 @@ export function mapStateToProps(store) {
   return { reduxStoreProps: store };
 }
 
+export function getUsersChats(userId) {
+  console.log(`in get users chats for ${userId}`);
+  return firebase.database().ref(`users/${userId}/chats`).once('value').then((chatsRaw) => {
+    const chats = [];
+    for (const key in chatsRaw.val()){
+      chats.push(chatsRaw.val()[key])
+    }
+    return chats;
+  });
+}
+
 export function getAvailabilityArray(userId) {
+  console.log(userId);
   console.log('in getAvailabilityArray')
   return firebase.database().ref(`users/${userId}/availability/`).once('value').then((availability) => {
     const availabilities = [];
