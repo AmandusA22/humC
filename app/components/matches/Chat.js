@@ -88,6 +88,7 @@ class Chat extends React.Component {
       }
       //const newList = this.state.messages.push(chat.val())
       //this.setState({})
+      messages.reverse();
       this.setState({ messages });
     }));
   }

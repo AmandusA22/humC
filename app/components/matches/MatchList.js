@@ -17,7 +17,9 @@ import UserRow from '../common/userRow';
 class MatchList extends Component {
   constructor() {
     super();
-    this.state = { unrespondedChatRequests: [] };
+    this.state = {
+      unrespondedChatRequests: [],
+      ourChats: [] };
   }
 
   componentDidMount() {
@@ -58,19 +60,20 @@ class MatchList extends Component {
   //   });
   // }
 
-  acceptInvite = (them) => {
-    console.log(them);
+  acceptInvite = (requestInfoFromThem) => {
+    console.log(requestInfoFromThem);
     const us = this.props.reduxStoreProps.user;
-    console.log(us);
-    const chatInfoForUs = { image: them.image, name: them.name, chatId: `${us.id}${them.id}`, start: them.invitedUsersFirstAvailableDay, end: them.invitedUsersLastAvailableDay};
-    const chatInfoForThem = { image: us.image, name: us.name, chatId: `${us.id}${them.id}`, start: them.invitingUsersFirstAvailableDay, end: them.invitingUsersLastAvailableDay };
-    const chatRefUs = firebase.database().ref(`users/${us.id}/chats/${them.id}`);
-    const chatRefThem = firebase.database().ref(`users/${them.id}/chats/${us.id}`);
+    const chatInfoForUs = { image: requestInfoFromThem.image, city: requestInfoFromThem.city, name: requestInfoFromThem.name, chatId: `${us.id}${requestInfoFromThem.id}`, start: requestInfoFromThem.invitedUsersFirstAvailableDay, end: requestInfoFromThem.invitedUsersLastAvailableDay};
+    const chatInfoForThem = { image: us.image, city: requestInfoFromThem.city, name: us.name, chatId: `${us.id}${requestInfoFromThem.id}`, start: requestInfoFromThem.invitingUsersFirstAvailableDay, end: requestInfoFromThem.invitingUsersLastAvailableDay };
+    const chatRefUs = firebase.database().ref(`users/${us.id}/chats/${requestInfoFromThem.id}`);
+    const chatRefThem = firebase.database().ref(`users/${requestInfoFromThem.id}/chats/${us.id}`);
     console.log(chatInfoForUs);
     console.log(chatInfoForThem);
     chatRefThem.set(chatInfoForThem).then(() =>
-       chatRefUs.set(chatInfoForUs).then(() =>
-        getUsersChats(us.id).then(chats => this.setState({ chats }))),
+      chatRefUs.set(chatInfoForUs).then(() => {
+        this.removeRequest(requestInfoFromThem);
+        getUsersChats(us.id).then(chats => this.setState({ chats }));
+      }),
     );
   };
 
@@ -110,87 +113,167 @@ class MatchList extends Component {
 
   renderChatDates = () => {
     console.log(this.state.ourChats);
-    const chatDates = [];
-    this.state.ourChats.forEach((chat) => {
-      const included = chatDates.filter(chatDate => chatDate.start === chat.start);
+    const scheduledChats = [];
+    const favorites = [];
+    const expired = [];
 
-      if (!included) {
-        chatDates.push({ start: chat.start, end: chat.end });
+    this.state.ourChats.forEach((chat) => {
+      console.log(chat);
+      if (chat.favorite) {
+        console.log('favorites');
+        favorites.push(chat);
+      } else if (chat.end < new Date().getTime()) {
+        console.log('expired');
+        expired.push(chat);
+      } else {
+        console.log('scheduledChats');
+        scheduledChats.push(chat);
       }
     });
+    const datesWithChats = []
+    scheduledChats.forEach((scheduledChat) => {
+      console.log('in schedule for each');
+      const included = datesWithChats.filter(chatDate => chatDate.start === scheduledChat.start);
+      console.log(included)
+      if (included.length === 0) {
+        console.log('in dates with chat');
+        datesWithChats.push({ start: scheduledChat.start, end: scheduledChat.end, city: scheduledChat.city, chats: [scheduledChat] });
+      } else {
+        console.log('in included');
+        included.chats.push(scheduledChat);
+      }
+    });
+    return (
+      <View>
+        {favorites.length !== 0 ? getRow(favorites, 'Favorites') : null}
+        {datesWithChats.map((date) => this.getRow(date.chats, `${unixToShortDate(date.start)} - ${unixToShortDate(date.end)} - ${date.city}`))}
+      </View>
+    )
 
-    // const dates = [];
-    // const availability = this.state.availability;
-    // console.log(availability);
-    // for (var key in availability) {
-    //   dates.push({ [key]: availability[key] });
-    // }
-    // return (dates.map((date, index) => {
-    //   console.log(date);
-    //   let dateValues;
-    //   for (const key in date) {
+  //  return (
+  //    <View key={index} style={{ flex: 1, marginTop: 30, justifyContent: 'center', alignItems: 'center' }}>
+  //      <View>
+  //        <Text style={{ fontSize: 14 }}>
+  //          {`${unixToShortDate(dateValues.start)} - ${unixToShortDate(dateValues.end)} - ${dateValues.city}`}
+  //        </Text>
+  //      </View>
+  //      <ListView
+  //        horizontal
+  //        dataSource={dataSource}
+  //        renderRow={user =>
+  //          <TouchableHighlight key={index} onPress={() => this.goToChat(user)}>
+  //            <Image source={{ uri: user.image }} style={{ height: 100, width: 100, borderRadius: 50, marginTop: 20, marginHorizontal: 8 }} />
+  //          </TouchableHighlight>}
+  //      />
+  //    </View>
 
-    //     dateValues = date[key];
-    //   }
-    //   let users = [];
-    //   const chats = dateValues.chat
-    //   for (const key in chats) {
-    //     users.push(chats[key]);
-    //   }
-    //   if (!chats) {
-    //     return;
-    //   }
-    //   const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
-    //   const dataSource = ds.cloneWithRows(users)
-    //   return (
-    //     <View key={index} style={{ flex: 1, marginTop: 30, justifyContent: 'center', alignItems: 'center' }}>
-    //       <View>
-    //         <Text style={{ fontSize: 14 }}>
-    //           {`${unixToShortDate(dateValues.start)} - ${unixToShortDate(dateValues.end)} - ${dateValues.city}`}
-    //         </Text>
-    //       </View>
-    //       <ListView
-    //         horizontal
-    //         dataSource={dataSource}
-    //         renderRow={user =>
-    //           <TouchableHighlight key={index} onPress={() => this.goToChat(user)}>
-    //             <Image source={{ uri: user.image }} style={{ height: 100, width: 100, borderRadius: 50, marginTop: 20, marginHorizontal: 8 }} />
-    //           </TouchableHighlight>}
-    //       />
+    // const favoritesRow =
+    //   <View>
+    //     <Text>Favorites</Text>
+    //
     //     </View>
-    //   ) }))
+
+    console.log(datesWithChats);
+
+
+    console.log('scheduledChats', scheduledChats);
+    console.log('favorites', favorites);
+    console.log('expired', expired);
   }
-  //
-  // <ScrollView contentInset={{ bottom: 64 }} horizontal={true} showsVerticalScrollIndicator={false}>
-  //   {users ? users.map((user, index) => {
-  //     console.log(user.image);
-  //   return(
-  //     <TouchableHighlight key={index} onPress={() => this.goToChat(user)}>
-  //
-  //       <Image source={{ uri: user.image }} style={{ height: 100, width: 100, borderRadius: 50, marginTop: 20, marginHorizontal: 8 }} />
-  //
-  //     </TouchableHighlight>
-  //   )
-  // }) : null}
-  // </ScrollView>
+
+  getRow = (users, text) => {
+    const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+    const dataSource = ds.cloneWithRows(users);
+    return (
+      <View style={{ flex: 1, marginTop: 30, justifyContent: 'center', alignItems: 'center' }}>
+         <View>
+           <Text style={{ fontSize: 14 }}>
+             {text}
+           </Text>
+         </View>
+         <ListView
+           horizontal
+           dataSource={dataSource}
+           renderRow={user =>
+             <TouchableHighlight onPress={() => this.goToChat(user)}>
+               <Image source={{ uri: user.image }} style={{ height: 100, width: 100, borderRadius: 50, marginTop: 20, marginHorizontal: 8 }} />
+             </TouchableHighlight>}
+         />
+      </View>
+   )
+  }
+
+  // const dates = [];
+  // const availability = this.state.availability;
+  // console.log(availability);
+  // for (var key in availability) {
+  //   dates.push({ [key]: availability[key] });
+  // }
+  // return (dates.map((date, index) => {
+  //   console.log(date);
+  //   let dateValues;
+  //   for (const key in date) {
+
+  //     dateValues = date[key];
+  //   }
+  //   let users = [];
+  //   const chats = dateValues.chat
+  //   for (const key in chats) {
+  //     users.push(chats[key]);
+  //   }
+  //   if (!chats) {
+  //     return;
+  //   }
+  //   const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+  //   const dataSource = ds.cloneWithRows(users)
+  //   return (
+  //     <View key={index} style={{ flex: 1, marginTop: 30, justifyContent: 'center', alignItems: 'center' }}>
+  //       <View>
+  //         <Text style={{ fontSize: 14 }}>
+  //           {`${unixToShortDate(dateValues.start)} - ${unixToShortDate(dateValues.end)} - ${dateValues.city}`}
+  //         </Text>
+  //       </View>
+  //       <ListView
+  //         horizontal
+  //         dataSource={dataSource}
+  //         renderRow={user =>
+  //           <TouchableHighlight key={index} onPress={() => this.goToChat(user)}>
+  //             <Image source={{ uri: user.image }} style={{ height: 100, width: 100, borderRadius: 50, marginTop: 20, marginHorizontal: 8 }} />
+  //           </TouchableHighlight>}
+  //       />
+  //     </View>
+  //   ) }))
+//
+// <ScrollView contentInset={{ bottom: 64 }} horizontal={true} showsVerticalScrollIndicator={false}>
+//   {users ? users.map((user, index) => {
+//     console.log(user.image);
+//   return(
+//     <TouchableHighlight key={index} onPress={() => this.goToChat(user)}>
+//
+//       <Image source={{ uri: user.image }} style={{ height: 100, width: 100, borderRadius: 50, marginTop: 20, marginHorizontal: 8 }} />
+//
+//     </TouchableHighlight>
+//   )
+// }) : null}
+// </ScrollView>
 
 
-  // <View>
-  //   <Text style={{ fontSize: 14 }}>
-  //     {`${unixToShortDate(dateValues.start)} - ${unixToShortDate(dateValues.end)} - ${dateValues.city}`}
-  //   </Text>
-  // </View>
-  // <ScrollView contentInset={{ bottom: 64 }}>
-  //   {users ? users.map((user, index) => {
-  //   return(
-  //     <TouchableHighlight key={index} onPress={() => this.goToChat(user)}>
-  //       {ifURL(user.image) ?
-  //       <Image source={{ uri: user.image }} style={{ height: 100, width: 100, borderRadius: 50, marginTop: 20 }} />
-  //       : null}
-  //     </TouchableHighlight>
-  //   )
-  // }) : null}
-  // </ScrollView>
+// <View>
+//   <Text style={{ fontSize: 14 }}>
+//     {`${unixToShortDate(dateValues.start)} - ${unixToShortDate(dateValues.end)} - ${dateValues.city}`}
+//   </Text>
+// </View>
+// <ScrollView contentInset={{ bottom: 64 }}>
+//   {users ? users.map((user, index) => {
+//   return(
+//     <TouchableHighlight key={index} onPress={() => this.goToChat(user)}>
+//       {ifURL(user.image) ?
+//       <Image source={{ uri: user.image }} style={{ height: 100, width: 100, borderRadius: 50, marginTop: 20 }} />
+//       : null}
+//     </TouchableHighlight>
+//   )
+// }) : null}
+// </ScrollView>
 
   removeDatesAlert = (start) => {
 
