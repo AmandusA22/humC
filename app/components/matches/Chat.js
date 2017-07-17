@@ -44,6 +44,13 @@ class Chat extends React.Component {
   componentWillMount() {
     this._isMounted = true;
     this.getMessages();
+    const ourId = this.props.reduxStoreProps.user.id;
+    const theirId = this.props.user.id;
+  //  `users/${their}/chats/${ourId}/unseen`
+    firebase.database().ref(`users/${ourId}/chats/${theirId}/unseen`).set(0);
+
+
+  //    this.props.user.chatId}/${us.id}`).set({ unseen: 0 });
     // this.setState(() => {
     //   return {
     //     messages: [],
@@ -77,19 +84,17 @@ class Chat extends React.Component {
 
   getMessages() {
     firebase.database().ref(`chats/${this.props.user.chatId}`).on('value', ((chat) => {
-      console.log('got value');
       let dbMessages = chat.val()
-      console.log(chat.val());
       let messages = [];
       for (const key in dbMessages) {
         if (dbMessages[key][0]) {
           messages.push(dbMessages[key][0])
         }
       }
-      //const newList = this.state.messages.push(chat.val())
-      //this.setState({})
+      // const newList = this.state.messages.push(chat.val());
+      // this.setState({});
       messages.reverse();
-      this.setState({ messages });
+      return this.setState({ messages });
     }));
   }
 
@@ -98,16 +103,15 @@ class Chat extends React.Component {
     console.log(messages);
     console.log(this.state);
     console.log(this.props);
-    firebase.database().ref(`chats/${this.props.user.chatId}`).push(messages);
-
-    // this.setState((previousState) => {
-    //   return {
-    //     messages: GiftedChat.append(previousState.messages, messages),
-    //   };
-    // });
-
-    // for demo purpose
-  //  this.answerDemo(messages);
+    const ourId = this.props.reduxStoreProps.user.id;
+    const theirId = this.props.user.id;
+    const unseenRef = firebase.database().ref(`users/${theirId}/chats/${ourId}/unseen`);
+    //ref(`chats/${this.props.user.chatId}/${this.props.user.id}/unseen`);
+    unseenRef.transaction((unseen) => {
+      return unseen + 1;
+    }).then(() =>
+      firebase.database().ref(`chats/${this.props.user.chatId}`).push(messages),
+    );
   }
 
   answerDemo(messages) {
@@ -242,9 +246,21 @@ class Chat extends React.Component {
     firebase.database().ref(`users/${ourID}/${pathInAvailability}/${theirId}`).remove();
   }
 
+  addAsFavorite = () => {
+    const ourID = this.props.reduxStoreProps.user.id;
+    const theirId = this.props.user.id;
+    console.log(this.props.user)
+    console.log(theirId);
+    const newPostKey = firebase.database().ref(`users/${ourID}/chats/${theirId}`).push().key;
+    const updates = {};
+    updates[`users/${ourID}/chats/${theirId}/favorite`] = true;
+    return firebase.database().ref().update(updates);
+  //  firebase.database().ref(`users/${ourID}/chats/${theirId}`).update();
+  }
+
   leftHeader = () => <TouchableHighlight onPress={() => this.toMatch()}>
-      <Image source={BackIcon}></Image>
-    </TouchableHighlight>
+    <Image source={BackIcon} />
+  </TouchableHighlight>
 
 
   render() {
@@ -252,6 +268,7 @@ class Chat extends React.Component {
       <View style={{ marginBottom: 56, flex: 1 }}>
         <Header variant="transparent" left={this.leftHeader()}
           title={this.props.user.name} right={<Button title="X" onPress={() => this.removeAlert()} />} />
+        <TouchableHighlight onPress={this.addAsFavorite}><Text>Add as favorite</Text></TouchableHighlight>
       <GiftedChat
         messages={this.state.messages}
         onSend={this.onSend}

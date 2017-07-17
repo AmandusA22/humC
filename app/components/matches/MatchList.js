@@ -25,7 +25,18 @@ class MatchList extends Component {
   componentDidMount() {
     this.getRequests();
     const us = this.props.reduxStoreProps.user;
-    getUsersChats(us.id).then(ourChats => this.setState({ ourChats }));
+    getUsersChats(us.id).then(ourChats => this.setState({ ourChats })).then(ourChats =>
+      this.getUnseenMessagesForChats(ourChats)
+    );
+  }
+
+  getUnseenMessagesForChats = (ourChats) => {
+    ourChats.forEach((chat) => {
+      const chatId = chat.chatId;
+      const us = this.props.reduxStoreProps.user;
+      firebase.database.ref(`chats/${chatId}/${us.id}`).on('value');
+    },
+  );
   }
 
   getRequests() {
@@ -47,7 +58,7 @@ class MatchList extends Component {
       }
     });
   }
-//
+
   // requestList() {
   //   const id = this.props.reduxStoreProps.user.id;
   //
@@ -63,8 +74,8 @@ class MatchList extends Component {
   acceptInvite = (requestInfoFromThem) => {
     console.log(requestInfoFromThem);
     const us = this.props.reduxStoreProps.user;
-    const chatInfoForUs = { image: requestInfoFromThem.image, city: requestInfoFromThem.city, name: requestInfoFromThem.name, chatId: `${us.id}${requestInfoFromThem.id}`, start: requestInfoFromThem.invitedUsersFirstAvailableDay, end: requestInfoFromThem.invitedUsersLastAvailableDay};
-    const chatInfoForThem = { image: us.image, city: requestInfoFromThem.city, name: us.name, chatId: `${us.id}${requestInfoFromThem.id}`, start: requestInfoFromThem.invitingUsersFirstAvailableDay, end: requestInfoFromThem.invitingUsersLastAvailableDay };
+    const chatInfoForUs = { image: requestInfoFromThem.image, id: requestInfoFromThem.id, city: requestInfoFromThem.city, name: requestInfoFromThem.name, chatId: `${us.id}${requestInfoFromThem.id}`, start: requestInfoFromThem.invitedUsersFirstAvailableDay, end: requestInfoFromThem.invitedUsersLastAvailableDay};
+    const chatInfoForThem = { image: us.image, id: us.id, city: requestInfoFromThem.city, name: us.name, chatId: `${us.id}${requestInfoFromThem.id}`, start: requestInfoFromThem.invitingUsersFirstAvailableDay, end: requestInfoFromThem.invitingUsersLastAvailableDay };
     const chatRefUs = firebase.database().ref(`users/${us.id}/chats/${requestInfoFromThem.id}`);
     const chatRefThem = firebase.database().ref(`users/${requestInfoFromThem.id}/chats/${us.id}`);
     console.log(chatInfoForUs);
@@ -145,8 +156,8 @@ class MatchList extends Component {
     });
     return (
       <View>
-        {favorites.length !== 0 ? getRow(favorites, 'Favorites') : null}
-        {datesWithChats.map((date) => this.getRow(date.chats, `${unixToShortDate(date.start)} - ${unixToShortDate(date.end)} - ${date.city}`))}
+        {favorites.length !== 0 ? this.getRow(favorites, 'Favorites') : null}
+        {datesWithChats.map(date => this.getRow(date.chats, `${unixToShortDate(date.start)} - ${unixToShortDate(date.end)} - ${date.city}`))}
       </View>
     )
 
@@ -196,7 +207,11 @@ class MatchList extends Component {
            dataSource={dataSource}
            renderRow={user =>
              <TouchableHighlight onPress={() => this.goToChat(user)}>
+               <View>
                <Image source={{ uri: user.image }} style={{ height: 100, width: 100, borderRadius: 50, marginTop: 20, marginHorizontal: 8 }} />
+                {user.unseen > 0 ? <View style={{ left: 80, top: 15, position: 'absolute', borderRadius: 50, padding: 7, width: 32, height: 32, backgroundColor: 'red', justifyContent: 'center', alignItems: 'center' }}><Text style={{color: 'white', fontSize: 18}}>{user.unseen}</Text></View> : null}
+
+               </View>
              </TouchableHighlight>}
          />
       </View>
@@ -284,6 +299,7 @@ class MatchList extends Component {
   }
 
   goToChat = (user) => {
+    console.log(user);
     Actions.chat({ user });
   }
 
