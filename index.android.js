@@ -4,14 +4,33 @@
  * @flow
  */
 
+//  import React, { Component } from 'react';
+//  import {
+//    AppRegistry,
+//    StyleSheet,
+//    Text,
+//    View,
+//  } from 'react-native';
+//  import App from './app/index.js';
+//
+// export default class humanConnection extends Component {
+//   render() {
+//     return (
+//       <App />
+//     );
+//   }
+// }
+//
+// AppRegistry.registerComponent('humanConnection', () => humanConnection);
+
 import React, { Component } from 'react';
 import {
-  AppRegistry,
+  AppRegistry, 
   StyleSheet,
   Text,
   View
 } from 'react-native';
-
+//
 export default class humanConnection extends Component {
   render() {
     return (

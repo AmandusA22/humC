@@ -18,7 +18,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-
   },
   contentContainer: {
     alignItems: 'center',
@@ -32,6 +31,18 @@ const styles = StyleSheet.create({
   },
   text: {
     lineHeight: 30,
+  },
+  betweenDatesView: {
+    marginLeft: 30,
+    marginRight: 30,
+    alignItems: 'center',
+    marginBottom: 30,
+  },
+  availableDatesText: {
+    marginTop: 50,
+    fontSize: 14,
+    fontWeight: 'bold',
+    alignSelf: 'center',
   },
 });
 
@@ -62,21 +73,28 @@ export class Calendar extends Component {
     }
   }
 
-  removeAvailabilityPressed = (availability) => {
-    const us = this.props.reduxStoreProps.user;
-    console.log(availability.start);
-    firebase.database().ref(`users/${us.id}/availability/${availability.start}`).remove();
-    let start = availability.start;
-    while (new Date(start).getTime() < new Date(availability.end).getTime()) {
-      firebase.database().ref(`${this.state.city}/${start}/${us.id}`).remove();
-      start += 1000 * 60 * 60 * 24;
+  getAvailabilityRows = () => {
+    if (!this.state.availabilities) {
+      return undefined;
     }
-  }
-
-  availabilityListener(userId) {
-    return firebase.database().ref(`users/${userId}/availability/`).on('value', (() => {
-      getAvailabilityArray(`${this.props.reduxStoreProps.user.id}`).then(availabilities => this.setState({ availabilities }));
-    }));
+    return (
+      <View style={{ flex: 1 }}>
+        <Text style={styles.availableDatesText}>Available dates</Text>
+        {this.state.availabilities.map((availability) => {
+          if (!availability.start) {
+            return undefined;
+          }
+          return (
+            <AvailabilityRow
+              key={availability.start}
+              availability={availability}
+              findWingman={this.findWingmanPressed}
+              removeAvailability={this.removeAvailabilityPressed}
+            />);
+        })
+      }
+      </View>
+    );
   }
 
   findWingmanPressed = (availability) => {
@@ -84,53 +102,72 @@ export class Calendar extends Component {
       { start: availability.start, end: availability.end, city: availability.city });
   }
 
-  getAvailabilityRows = () => {
-    if (this.state.availabilities) {
-      return (
-        <View style={{ flex: 1 }}>
-          <Text style={{ marginTop: 50, fontSize: 14, fontWeight: 'bold', alignSelf: 'center' }}>Available dates</Text>
-          {this.state.availabilities.map((availability, index) => {
-            if (availability.start) {
-              return (
-                <AvailabilityRow
-                  key={index}
-                  availability={availability}
-                  findWingman={this.findWingmanPressed}
-                  removeAvailability={this.removeAvailabilityPressed}
-                />);
-            }
-          })
-        }
-        </View>
-      );
+
+  availabilityListener(userId) {
+    return firebase.database().ref(`users/${userId}/availability/`).on('value', (() => {
+      getAvailabilityArray(`${this.props.reduxStoreProps.user.id}`).then(availabilities => this.setState({ availabilities }));
+    }));
+  }
+
+  removeAvailabilityPressed = (availability) => {
+
+    const us = this.props.reduxStoreProps.user;
+    let start = availability.start;
+
+    firebase.database().ref(`users/${us.id}/availability/${availability.start}`).remove();
+    while (new Date(start).getTime() < new Date(availability.end).getTime()) {
+      const removeDay = unixToShortDate(start);
+      firebase.database().ref(`${this.state.city}/${removeDay}/${us.id}`).remove();
+      start += 1000 * 60 * 60 * 24;
     }
   }
 
   confirmAvailability = () => {
     const us = this.props.reduxStoreProps.user;
     let start = this.state.selectedStartDate.getTime();
-    const end = this.state.selectedEndDate.getTime();
+    let end;
+    if (this.state.selectedEndDate) {
+      end = this.state.selectedEndDate.getTime();
+    } else {
+      end = start;
+    }
     const startDate = new Date(+start).getTime();
     const endDate = new Date(+end).getTime();
+
     firebase.database().ref(`users/${us.id}/availability/${startDate}`).set({
       start: startDate,
       end: endDate,
       city: this.state.city,
       chats: [],
     });
+
     while (new Date(start).getTime() <= new Date(end).getTime()) {
       const date = unixToShortDate(start);
       firebase.database().ref(`${this.state.city}/${date}/${us.id}`).set({
         start: startDate,
         end: endDate,
       });
-      start += 1000 * 60 * 60 * 24;
+      const miliSecPerDay = 1000 * 60 * 60 * 24;
+      start += miliSecPerDay;
     }
 
     if (!this.props.reduxStoreProps.app_state) {
-      console.log('!inTab');
-      this.props.dispatch(saveAppStateAction({ tabBar: true }))
-      Actions.tabBar();
+      this.nextOnboardingScreen();
+    } else if (this.props.reduxStoreProps.app_state.tabBar) {
+      Actions.searchWingman({ start: startDate, end, city: this.state.city });
+    } else {
+      this.nextOnboardingScreen();
+    }
+  }
+
+  nextOnboardingScreen = () => {
+    this.props.dispatch(saveAppStateAction({ tabBar: true }))
+    Actions.tabBar();
+  }
+
+  transitionToNextView = () => {
+    if (!this.props.reduxStoreProps.app_state) {
+
     } else if (this.props.reduxStoreProps.app_state.tabBar) {
       const transferEndDate = new Date(this.state.selectedEndDate);
       Actions.searchWingman({ start: startDate, end: transferEndDate, city: this.state.city });
@@ -143,12 +180,12 @@ export class Calendar extends Component {
   render() {
     const { selectedStartDate, selectedEndDate } = this.state;
     const minDate = new Date();
-    let displayableStartDate = ''
-    let displayableEndDate = ''
-    if(selectedStartDate) {
-      const startDate = selectedStartDate.toString()
-      const startArr = startDate.split(' ')
-      displayableStartDate = startArr[0] + ' ' + startArr[1] + ' ' + startArr[2]
+    let displayableStartDate = '';
+    let displayableEndDate = '';
+    if (selectedStartDate) {
+      const startDate = selectedStartDate.toString();
+      const startArr = startDate.split(' ');
+      displayableStartDate = `${startArr[0]} ${startArr[1]} ${startArr[2]}`;
     }
     if (selectedEndDate) {
       const endDate = selectedEndDate.toString();
@@ -167,7 +204,7 @@ export class Calendar extends Component {
           <Text style={styles.text}>I will be in </Text>
           <Button style={styles.text}> Stockholm </Button>
         </View>
-        <View style={{ marginLeft: 30, marginRight: 30, alignItems: 'center', marginBottom: 30 }}>
+        <View style={styles.betweenDatesView}>
           {displayableStartDate ?
             <Text style={styles.text}>
              Between { displayableStartDate } and { displayableEndDate }

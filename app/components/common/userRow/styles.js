@@ -8,7 +8,6 @@ const styles = StyleSheet.create({
   },
   body: {
     flexDirection: 'row',
-  //  paddingHorizontal: 8,
     flex: 1,
     paddingVertical: 8,
     justifyContent: 'space-between',
@@ -19,40 +18,39 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     marginVertical: 8,
   },
-  loanAmountValue: {
-    marginTop: -4,
-    fontSize: 24,
-    lineHeight: 24,
-    paddingRight: 20,
-    marginRight: 20,
-    // color: variables.colors.text,
-    // fontFamily: variables.fonts.primary,
-  },
-  loanAmountLabel: {
+  nameLabel: {
     fontSize: 16,
     lineHeight: 16,
-    // color: variables.colors.text,
-    // fontFamily: variables.fonts.primary,
     fontWeight: '300',
   },
   footer: {
     flexDirection: 'row',
-  //  paddingHorizontal: 16,
     paddingVertical: 8,
     borderBottomWidth: 1,
-  //  borderColor: variables.colors.secondary,
   },
   footerItem: {
     flex: 1,
   },
   footerItemText: {
     fontSize: 12,
-    // color: variables.colors.textMuted,
-    // fontFamily: variables.fonts.primary,
     fontWeight: '300',
   },
   footerItemValue: {
     fontWeight: '600',
+  },
+  image: {
+    height: 100,
+    width: 100,
+  },
+  acceptButton: {
+    marginRight: 20,
+    color: 'green',
+    textAlign: 'center',
+  },
+  declineButton: {
+    marginRight: 20,
+    color: 'red',
+    textAlign: 'center',
   },
 });
 

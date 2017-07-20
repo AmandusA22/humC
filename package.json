@@ -14,7 +14,7 @@
     "react-apollo": "^1.4.3",
     "react-native": "0.42.3",
     "react-native-button": "^1.7.2",
-    "react-native-calendar-picker": "^5.10.0",
+    "react-native-calendar-picker": "https://github.com/AmandusA22/CalendarPicker/tarball/master",
     "react-native-camera": "git+https://github.com/lwansbrough/react-native-camera.git",
     "react-native-camera-roll-picker": "^1.1.9",
     "react-native-fbsdk": "^0.6.0",

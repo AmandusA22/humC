@@ -30,69 +30,33 @@ class Chat extends React.Component {
       isLoadingEarlier: false,
     };
 
-    this._isMounted = false;
     this.onSend = this.onSend.bind(this);
-    this.onReceive = this.onReceive.bind(this);
-    this.renderCustomActions = this.renderCustomActions.bind(this);
     this.renderBubble = this.renderBubble.bind(this);
     this.renderFooter = this.renderFooter.bind(this);
-    this.onLoadEarlier = this.onLoadEarlier.bind(this);
-
     this._isAlright = null;
   }
 
   componentWillMount() {
-    this._isMounted = true;
     this.getMessages();
-    const ourId = this.props.reduxStoreProps.user.id;
-    const theirId = this.props.user.id;
-  //  `users/${their}/chats/${ourId}/unseen`
-    firebase.database().ref(`users/${ourId}/chats/${theirId}/unseen`).set(0);
-
-
-  //    this.props.user.chatId}/${us.id}`).set({ unseen: 0 });
-    // this.setState(() => {
-    //   return {
-    //     messages: [],
-    //   };
-    // });
+  //  firebase.database().ref(`users/${ourId}/chats/${theirId}/unseen`).set(0);
   }
 
   componentWillUnmount() {
-    this._isMounted = false;
-  }
-
-  onLoadEarlier() {
-    this.setState((previousState) => {
-      return {
-        isLoadingEarlier: true,
-      };
+    const ourId = this.props.reduxStoreProps.user.id;
+    const theirId = this.props.user.id;
+    console.log('unmounting')
+    firebase.database().ref(`users/${ourId}/chats/${theirId}/unseen`).set(0).then(() => {
     });
-
-    setTimeout(() => {
-      if (this._isMounted === true) {
-        this.setState((previousState) => {
-          return {
-            messages: GiftedChat.prepend(previousState.messages, require('./data/old_messages.js')),
-            loadEarlier: false,
-            isLoadingEarlier: false,
-          };
-        });
-      }
-    }, 1000); // simulating network
   }
 
   getMessages() {
     firebase.database().ref(`chats/${this.props.user.chatId}`).on('value', ((chat) => {
-      let dbMessages = chat.val()
-      let messages = [];
-      for (const key in dbMessages) {
-        if (dbMessages[key][0]) {
-          messages.push(dbMessages[key][0])
-        }
+      if (!chat.val()) {
+        return;
       }
-      // const newList = this.state.messages.push(chat.val());
-      // this.setState({});
+      const dbMessages = chat.val();
+      const messageArray = Object.values(dbMessages);
+      const messages = messageArray.map(hiddenMessage => hiddenMessage[0]);
       messages.reverse();
       return this.setState({ messages });
     }));
@@ -100,94 +64,13 @@ class Chat extends React.Component {
 
 
   onSend(messages = []) {
-    console.log(messages);
-    console.log(this.state);
-    console.log(this.props);
     const ourId = this.props.reduxStoreProps.user.id;
     const theirId = this.props.user.id;
     const unseenRef = firebase.database().ref(`users/${theirId}/chats/${ourId}/unseen`);
-    //ref(`chats/${this.props.user.chatId}/${this.props.user.id}/unseen`);
     unseenRef.transaction((unseen) => {
       return unseen + 1;
     }).then(() =>
       firebase.database().ref(`chats/${this.props.user.chatId}`).push(messages),
-    );
-  }
-
-  answerDemo(messages) {
-    if (messages.length > 0) {
-      if ((messages[0].image || messages[0].location) || !this._isAlright) {
-        this.setState((previousState) => {
-          return {
-            typingText: ''
-          };
-        });
-      }
-    }
-
-    setTimeout(() => {
-      if (this._isMounted === true) {
-        if (messages.length > 0) {
-          if (messages[0].image) {
-            this.onReceive('Nice picture!');
-          } else if (messages[0].location) {
-            this.onReceive('My favorite place');
-          } else {
-            if (!this._isAlright) {
-              this._isAlright = true;
-              this.onReceive('reply looks like this');
-            }
-          }
-        }
-      }
-
-      this.setState((previousState) => {
-        return {
-          typingText: null,
-        };
-      });
-    }, 1000);
-  }
-
-  onReceive(text) {
-    this.setState((previousState) => {
-      return {
-        messages: GiftedChat.append(previousState.messages, {
-          _id: Math.round(Math.random() * 1000000),
-          text: text,
-          createdAt: new Date(),
-          user: {
-            _id: 2,
-            name: 'Amandus Axelsson',
-            // avatar: 'https://facebook.github.io/react/img/logo_og.png',
-          },
-        }),
-      };
-    });
-  }
-
-  renderCustomActions(props) {
-    if (Platform.OS === 'ios') {
-      return (
-        <CustomActions
-          {...props}
-        />
-      );
-    }
-    const options = {
-      'Action 1': (props) => {
-        alert('option 1');
-      },
-      'Action 2': (props) => {
-        alert('option 2');
-      },
-      'Cancel': () => {},
-    };
-    return (
-      <Actions
-        {...props}
-        options={options}
-      />
     );
   }
 
@@ -204,13 +87,13 @@ class Chat extends React.Component {
     );
   }
 
-  renderCustomView(props) {
-    return (
-      <CustomView
-        {...props}
-      />
-    );
-  }
+  // renderCustomView(props) {
+  //   return (
+  //     <CustomView
+  //       {...props}
+  //     />
+  //   );
+  // }
 
   renderFooter(props) {
     if (this.state.typingText) {
@@ -226,7 +109,7 @@ class Chat extends React.Component {
   }
 
   toMatch() {
-    Action.MatchList();
+    Action.pop();
   }
 
   removeAlert() {
@@ -239,18 +122,15 @@ class Chat extends React.Component {
   }
 
   removeUserFromChat = () => {
-    console.log('removing')
     const ourID = this.props.reduxStoreProps.user.id;
-    const pathInAvailability = `availability/${this.props.path}`;
-    const theirId = this.props.user.id
-    firebase.database().ref(`users/${ourID}/${pathInAvailability}/${theirId}`).remove();
+    const theirId = this.props.user.id;
+    const removeThemFromUs = firebase.database().ref(`users/${ourID}/chats/${theirId}`).remove();
+    const removeUsForThem = firebase.database().ref(`users/${theirId}/chats/${ourID}`).remove().then(() => Action.MatchList());
   }
 
   addAsFavorite = () => {
     const ourID = this.props.reduxStoreProps.user.id;
     const theirId = this.props.user.id;
-    console.log(this.props.user)
-    console.log(theirId);
     const newPostKey = firebase.database().ref(`users/${ourID}/chats/${theirId}`).push().key;
     const updates = {};
     updates[`users/${ourID}/chats/${theirId}/favorite`] = true;
@@ -265,25 +145,27 @@ class Chat extends React.Component {
 
   render() {
     return (
-      <View style={{ marginBottom: 56, flex: 1 }}>
-        <Header variant="transparent" left={this.leftHeader()}
-          title={this.props.user.name} right={<Button title="X" onPress={() => this.removeAlert()} />} />
-        <TouchableHighlight onPress={this.addAsFavorite}><Text>Add as favorite</Text></TouchableHighlight>
-      <GiftedChat
-        messages={this.state.messages}
-        onSend={this.onSend}
-        loadEarlier={this.state.loadEarlier}
-        onLoadEarlier={this.onLoadEarlier}
-        isLoadingEarlier={this.state.isLoadingEarlier}
-        user={{
-          _id: this.props.reduxStoreProps.user.id, // sent messages should have same user._id
-        }}
-        renderActions={this.renderCustomActions}
-        renderBubble={this.renderBubble}
-        renderCustomView={this.renderCustomView}
-        renderFooter={this.renderFooter}
-        bottomOffset={56}
-      />
+      <View style={styles.container}>
+        <Header
+          variant="transparent"
+          left={this.leftHeader()}
+          title={this.props.user.name}
+          right={<Button title="X" onPress={() => this.removeAlert()} />}
+        />
+        <TouchableHighlight onPress={this.addAsFavorite}>
+          <Text>Add as favorite</Text>
+        </TouchableHighlight>
+        <GiftedChat
+          messages={this.state.messages}
+          onSend={this.onSend}
+          loadEarlier={this.state.loadEarlier}
+          isLoadingEarlier={this.state.isLoadingEarlier}
+          user={{ _id: this.props.reduxStoreProps.user.id }}
+          renderBubble={this.renderBubble}
+          renderCustomView={this.renderCustomView}
+          renderFooter={this.renderFooter}
+          bottomOffset={56}
+        />
       </View>
     );
   }
@@ -301,5 +183,9 @@ const styles = StyleSheet.create({
   footerText: {
     fontSize: 14,
     color: '#aaa',
+  },
+  container: {
+    marginBottom: 56,
+    flex: 1,
   },
 });

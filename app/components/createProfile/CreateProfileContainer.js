@@ -130,6 +130,32 @@ const styles = StyleSheet.create({
     padding: 10,
     margin: 40,
   },
+  standardInputLabel: {
+    flex: 1,
+    height: 50,
+  },
+  description: {
+    flex: 1,
+    height: 50,
+  },
+  image: {
+    height: 100,
+    width: 100,
+  },
+  scrollViewContainer: {
+    flex: 1,
+    marginLeft: 20,
+    marginRight: 20,
+  },
+  uiComponentRow: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 30,
+  },
+  bottomViewContainer:
+    { flexDirection: 'row', alignItems: 'center', alignSelf: 'center', marginTop: 40 },
 });
 
 class CreateProfile extends Component {
@@ -201,16 +227,11 @@ class CreateProfile extends Component {
     </View>
 
   doneButton = () =>
-
     <Button style={styles.doneButton} onPress={this.setNoPicker}>
       Done
     </Button>
 
-    setNoPicker = () => {
-
-      //this.scrollView.scrollTo({x: 0, y: 300, animated: true})
-      this.setState({ picker: null });
-  }
+  setNoPicker = () => this.setState({ picker: null });
 
   interestedInPicker = () =>
     <View>
@@ -232,17 +253,17 @@ class CreateProfile extends Component {
       setValue={name => this.setState({ name })}
       label="Full name"
       value={this.state.name}
-      style={{ flex: 1, height: 50 }}
+      style={styles.standardInputLabel}
       keyboardType="default"
       returnKeyType="done"
     />
 
-  getInterestsRow = () => <LabeledValue labelPressed={() => this.setState({ picker: 'interest' })} label="interest" value={this.state.interest} style={{ flex: 1, height: 50 }} />
+  getInterestsRow = () => <LabeledValue labelPressed={() => this.setState({ picker: 'interest' })} label="interest" value={this.state.interest} style={styles.standardInputLabel} />
 
   getAgeRow = () =>
     <View style={{ flexDirection: 'row' }}>
-      <LabeledValue labelPressed={() => this.setState({ picker: 'age' })} label="age" value={`${this.state.age} years old`} style={{ flex: 1, height: 50 }} />
-      <LabeledValue labelPressed={() => this.setState({ picker: 'gender' })} label="gender" value={this.state.gender} style={{ flex: 1, height: 50 }} />
+      <LabeledValue labelPressed={() => this.setState({ picker: 'age' })} label="age" value={`${this.state.age} years old`} style={styles.standardInputLabel} />
+      <LabeledValue labelPressed={() => this.setState({ picker: 'gender' })} label="gender" value={this.state.gender} style={styles.standardInputLabel} />
     </View>
 
   getDescriptionRow = () =>
@@ -250,7 +271,7 @@ class CreateProfile extends Component {
       setValue={description => this.setState({ description })}
       label="Describe yourself"
       value={this.state.description}
-      style={{ flex: 1, height: 50 }}
+      style={styles.standardInputLabel}
       keyboardType="default"
       returnKeyType="done"
     />
@@ -259,7 +280,7 @@ class CreateProfile extends Component {
     <View style={{ marginTop: 40 }}>
       {this.state.image ?
         <View style={{ alignItems: 'center' }}>
-          <Image style={{ height: 100, width: 100 }} source={{ uri: this.state.image }} />
+          <Image style={styles.image} source={{ uri: this.state.image }} />
           <Button onPress={() => this.showImageAlert()}>
             Change Image
           </Button>
@@ -310,34 +331,36 @@ class CreateProfile extends Component {
   }
 
   logout() {
-    Actions.LoginWithFacebook();
-
+    firebase.auth().signOut().then(() => {
+      Actions.LoginWithFacebook();
+    }).catch((error) => {
+      console.log(error);
+    });
   }
 
   ifScroll = () => {
-    if(this.state.picker){ return this.scrollView.scrollToEnd({animated: true})}
+    if (this.state.picker) { return this.scrollView.scrollToEnd({ animated: true }); }
   }
 
 
   createInputs = () =>
   <View style={{flex: 1}}>
-    <ScrollView style={{flex: 1, marginLeft: 20, marginRight: 20}}  onContentSizeChange={(contentWidth, contentHeight)=>{
+    <ScrollView style={styles.scrollViewContainer}  onContentSizeChange={(contentWidth, contentHeight)=>{
         this.ifScroll()}} contentInset={{bottom: 64}} ref={ref => this.scrollView = ref}>
       <Header variant="transparent" title="CreateAccount" left={<Button onPress={this.logOut}>X</Button>} />
         <View style={{ flexDirection: 'row', alignItems: 'center', alignSelf: 'center'}}>
           <LoginButton onLogoutFinished={this.logout} />
         </View>
       {this.GetUIComponents().map((value, index) =>
-        <View key={index} style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 30 }}>
-
+        <View key={index} style={styles.uiComponentRow}>
           {value}
-        </View>
+        </View>,
     )}
       {this.pickers()}
-      <View style={{ flexDirection: 'row', alignItems: 'center', alignSelf: 'center', marginTop: 40 }}>
-        <View style={{height: 40 }} />
+      <View style={styles.bottomViewContainer}>
+        <View style={{ height: 40 }} />
         <Button
-          containerStyle={[styles.doneButtonContainer, !this.state.image ? {backgroundColor: 'rgba(76,175,80, 0.2)'} : null]}
+          containerStyle={[styles.doneButtonContainer, !this.state.image ? { backgroundColor: 'rgba(76,175,80, 0.2)' } : null]}
           style={styles.doneButtonText}
           onPress={() => this.sendCreateProfile()}
           disabled={!this.state.image}
@@ -345,10 +368,9 @@ class CreateProfile extends Component {
           Done
         </Button>
       </View>
-
-        {this.state.keyboard ? <Button>Done</Button> : null}
+      {this.state.keyboard ? <Button>Done</Button> : null}
     </ScrollView>
-</View>
+  </View>
 
   showImageAlert = () =>
       Alert.alert('Choose Image',

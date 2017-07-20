@@ -60,7 +60,7 @@ export default class router extends Component {
 
 let style = StyleSheet.create({
   tabBarStyle: {
-    borderTopWidth: 0.5,
+    borderTopWidth: 1,
     borderColor: '#b7b7b7',
     backgroundColor: 'white',
     height: 50,

@@ -5,6 +5,7 @@
 	};
 	objectVersion = 46;
 	objects = {
+
 /* Begin PBXBuildFile section */
 		00C302E51ABCBA2D00DB3ED1 /* libRCTActionSheet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302AC1ABCB8CE00DB3ED1 /* libRCTActionSheet.a */; };
 		00C302E71ABCBA2D00DB3ED1 /* libRCTGeolocation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302BA1ABCB90400DB3ED1 /* libRCTGeolocation.a */; };
@@ -40,6 +41,7 @@
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		9B132CBB1EE1BE4F00DDC8C3 /* libRCTFBSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B132C461EE1A8F500DDC8C3 /* libRCTFBSDK.a */; };
 		9B60B6F11EE1932500B200C1 /* libRCTCameraRoll.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B60B6F01EE192D900B200C1 /* libRCTCameraRoll.a */; };
+		9BF604691F1F759200BA1FE1 /* libRCTPushNotification.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9BF604661F1F752F00BA1FE1 /* libRCTPushNotification.a */; };
 		B619DFEFC1C64BC38DB54259 /* FBSDKLoginKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A4BD595DE60F4FEA9E11BEA6 /* FBSDKLoginKit.framework */; };
 		B8300F7AE5D648B6AA0C4F29 /* FBSDKCoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 064E1F76AE4745FD86931F9B /* FBSDKCoreKit.framework */; };
 /* End PBXBuildFile section */
@@ -255,6 +257,27 @@
 			remoteGlobalIDString = 58B5115D1A9E6B3D00147676;
 			remoteInfo = RCTCameraRoll;
 		};
+		9BF604471F1F6F7200BA1FE1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7E8FD952A7BF4A49803EE91D /* RCTFBLogin.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 4F3A6B5B1ACFBCC500CA65F7;
+			remoteInfo = RCTFBLogin;
+		};
+		9BF604651F1F752F00BA1FE1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9BF604601F1F752E00BA1FE1 /* RCTPushNotification.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 134814201AA4EA6300B7C361;
+			remoteInfo = RCTPushNotification;
+		};
+		9BF604671F1F752F00BA1FE1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9BF604601F1F752E00BA1FE1 /* RCTPushNotification.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3D05745F1DE6004600184BB4;
+			remoteInfo = "RCTPushNotification-tvOS";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -289,6 +312,7 @@
 		810EF9E1EC7A4AF184313FDF /* RCTFBSDK.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RCTFBSDK.xcodeproj; path = "../node_modules/react-native-fbsdk/ios/RCTFBSDK.xcodeproj"; sourceTree = "<group>"; };
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
 		9B60B6EB1EE192D900B200C1 /* RCTCameraRoll.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTCameraRoll.xcodeproj; path = "../node_modules/react-native/Libraries/CameraRoll/RCTCameraRoll.xcodeproj"; sourceTree = "<group>"; };
+		9BF604601F1F752E00BA1FE1 /* RCTPushNotification.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTPushNotification.xcodeproj; path = "../node_modules/react-native/Libraries/PushNotificationIOS/RCTPushNotification.xcodeproj"; sourceTree = "<group>"; };
 		A4BD595DE60F4FEA9E11BEA6 /* FBSDKLoginKit.framework */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = wrapper.framework; name = FBSDKLoginKit.framework; path = ./ios/Frameworks/FBSDKLoginKit.framework; sourceTree = "<group>"; };
 		B9387157D5A44A668C13D04D /* libRCTFBLogin.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRCTFBLogin.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -306,6 +330,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9BF604691F1F759200BA1FE1 /* libRCTPushNotification.a in Frameworks */,
 				9B132CBB1EE1BE4F00DDC8C3 /* libRCTFBSDK.a in Frameworks */,
 				9B60B6F11EE1932500B200C1 /* libRCTCameraRoll.a in Frameworks */,
 				146834051AC3E58100842450 /* libReact.a in Frameworks */,
@@ -479,6 +504,7 @@
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				9BF604601F1F752E00BA1FE1 /* RCTPushNotification.xcodeproj */,
 				9B60B6EB1EE192D900B200C1 /* RCTCameraRoll.xcodeproj */,
 				5E91572D1DD0AC6500FF2AA8 /* RCTAnimation.xcodeproj */,
 				146833FF1AC3E56700842450 /* React.xcodeproj */,
@@ -554,21 +580,22 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		0D3C8BD861AE4A6B8B3946A7 /* Frameworks */ = {
-			isa = "PBXGroup";
+		9BF6043F1F1F6F7200BA1FE1 /* Products */ = {
+			isa = PBXGroup;
 			children = (
+				9BF604481F1F6F7200BA1FE1 /* libRCTFBLogin.a */,
 			);
-			name = Frameworks;
+			name = Products;
 			sourceTree = "<group>";
-			path = ./ios/Frameworks;
 		};
-		779164BDD00F43689A22977F /* Frameworks */ = {
-			isa = "PBXGroup";
+		9BF604611F1F752E00BA1FE1 /* Products */ = {
+			isa = PBXGroup;
 			children = (
+				9BF604661F1F752F00BA1FE1 /* libRCTPushNotification.a */,
+				9BF604681F1F752F00BA1FE1 /* libRCTPushNotification-tvOS.a */,
 			);
-			name = Frameworks;
+			name = Products;
 			sourceTree = "<group>";
-			path = ./ios/Frameworks;
 		};
 /* End PBXGroup section */
 
@@ -656,7 +683,11 @@
 				TargetAttributes = {
 					00E356ED1AD99517003FC87E = {
 						CreatedOnToolsVersion = 6.2;
+						DevelopmentTeam = F7H49LPSJG;
 						TestTargetID = 13B07F861A680F5B00A75B9A;
+					};
+					13B07F861A680F5B00A75B9A = {
+						DevelopmentTeam = F7H49LPSJG;
 					};
 					2D02E47A1E0B4A5D006451C7 = {
 						CreatedOnToolsVersion = 8.2.1;
@@ -698,6 +729,10 @@
 					ProjectRef = 9B60B6EB1EE192D900B200C1 /* RCTCameraRoll.xcodeproj */;
 				},
 				{
+					ProductGroup = 9BF6043F1F1F6F7200BA1FE1 /* Products */;
+					ProjectRef = 7E8FD952A7BF4A49803EE91D /* RCTFBLogin.xcodeproj */;
+				},
+				{
 					ProductGroup = 9B132C3D1EE1A8F400DDC8C3 /* Products */;
 					ProjectRef = 810EF9E1EC7A4AF184313FDF /* RCTFBSDK.xcodeproj */;
 				},
@@ -716,6 +751,10 @@
 				{
 					ProductGroup = 00C302D41ABCB9D200DB3ED1 /* Products */;
 					ProjectRef = 00C302D31ABCB9D200DB3ED1 /* RCTNetwork.xcodeproj */;
+				},
+				{
+					ProductGroup = 9BF604611F1F752E00BA1FE1 /* Products */;
+					ProjectRef = 9BF604601F1F752E00BA1FE1 /* RCTPushNotification.xcodeproj */;
 				},
 				{
 					ProductGroup = 139105B71AF99BAD00B5F7CC /* Products */;
@@ -945,6 +984,27 @@
 			remoteRef = 9B60B6EF1EE192D900B200C1 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		9BF604481F1F6F7200BA1FE1 /* libRCTFBLogin.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRCTFBLogin.a;
+			remoteRef = 9BF604471F1F6F7200BA1FE1 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		9BF604661F1F752F00BA1FE1 /* libRCTPushNotification.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRCTPushNotification.a;
+			remoteRef = 9BF604651F1F752F00BA1FE1 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		9BF604681F1F752F00BA1FE1 /* libRCTPushNotification-tvOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libRCTPushNotification-tvOS.a";
+			remoteRef = 9BF604671F1F752F00BA1FE1 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
@@ -1079,6 +1139,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = F7H49LPSJG;
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/Frameworks/";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -1113,6 +1174,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
+				DEVELOPMENT_TEAM = F7H49LPSJG;
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/Frameworks/";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1144,6 +1206,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = NO;
+				DEVELOPMENT_TEAM = F7H49LPSJG;
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/Frameworks/";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1168,6 +1231,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = F7H49LPSJG;
 				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/Frameworks/";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",

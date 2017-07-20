@@ -26,8 +26,6 @@ const styles = StyleSheet.create({
 
   },
   element: {
-    fontSize: 24,
-    fontWeight: '600',
   //  fontFamily: variables.fonts.primary,
     paddingVertical: 16,
   },

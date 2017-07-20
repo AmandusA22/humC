@@ -20,11 +20,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  headerText: {
-    marginTop: 40,
-    lineHeight: 32,
-    fontSize: 24,
-  },
+  // headerText: {
+  //   marginTop: 40,
+  //   lineHeight: 32,
+  //   fontSize: 24,
+  // },
   bodyText: {
     fontSize: 14,
     width: 300,
@@ -34,34 +34,52 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: 'transparent',
   },
+  logo: {
+    height: 250,
+    width: 250,
+  },
+  headerText: {
+    fontSize: 22,
+    marginBottom: 30,
+    marginTop: 60,
+  },
+  paragraph: {
+    fontSize: 18,
+    color: 'gray',
+    marginLeft: 30,
+    marginRight: 30,
+    justifyContent: 'center',
+    textAlign: 'center',
+  },
+  loginButtonView: {
+    marginTop: 30,
+  },
 });
 
- const config = {
-   apiKey: 'AIzaSyDrQpV3-mc6-hGGJAroP9le4boFeHrG1aM',
-   authDomain: 'wingman-f33a2.firebaseapp.com',
-   databaseURL: 'https://wingman-f33a2.firebaseio.com',
-   projectId: 'wingman-f33a2',
-   storageBucket: 'wingman-f33a2.appspot.com',
-   messagingSenderId: '118390179615',
- };
+const config = {
+  apiKey: 'AIzaSyDrQpV3-mc6-hGGJAroP9le4boFeHrG1aM',
+  authDomain: 'wingman-f33a2.firebaseapp.com',
+  databaseURL: 'https://wingman-f33a2.firebaseio.com',
+  projectId: 'wingman-f33a2',
+  storageBucket: 'wingman-f33a2.appspot.com',
+  messagingSenderId: '118390179615',
+};
 
 firebase.initializeApp(config);
 
+function goToUserSetup() {
+  Actions.createProfile();
+}
+
 export class Login extends Component {
 
-  checkIfExistingUser(facebookData) {
-    const that = this
-    console.log(facebookData);
-    firebase.database().ref(`users/${facebookData.uid}`).once('value').then(function(data) {
-      if (!data.val()) {
-        return that.setUpNewUser(facebookData);
-      }
-      if (data.val().age) {
-        return that.goToTabMenu(facebookData.uid);
-      } else {
-        return that.setUpNewUser(facebookData)
+  componentDidMount() {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        this.checkIfExistingUser(user);
       }
     });
+  //  this.createUser();
   }
 
   setUpNewUser = (facebookData) => {
@@ -71,31 +89,43 @@ export class Login extends Component {
     firebase.database().ref(`users/${facebookData.uid}`).set(saveUserData).then(
       this.handleNewUser(saveUserData),
     );
-
   }
 
-  componentDidMount() {
-    const that = this
-    firebase.auth().onAuthStateChanged(function(user) {
-      if(user) {
-        that.checkIfExistingUser(user);
-
-    // User is signed in.
-    } else {
-    // No user is signed in.
+  checkIfExistingUser(facebookData) {
+    const that = this;
+    firebase.database().ref(`users/${facebookData.uid}`).once('value').then((data) => {
+      if (!data.val()) {
+        return that.setUpNewUser(facebookData);
       }
+      if (data.val().age) {
+        return that.goToTabMenu(facebookData.uid);
+      }
+      return that.setUpNewUser(facebookData);
     });
-    this.createUser()
-  //  emailLogin()
-    // AccessToken.getCurrentAccessToken().then(
-    //   (data) => {
-    //     console.log(data);
-    //     if (data.accessToken) {
-    //       this.login();
-    //     }
-    //   },
-    // );
   }
+
+  // componentDidMount() {
+  //   const that = this
+  //   firebase.auth().onAuthStateChanged(function(user) {
+  //     if(user) {
+  //       that.checkIfExistingUser(user);
+  //
+  //   // User is signed in.
+  //   } else {
+  //   // No user is signed in.
+  //     }
+  //   });
+  // //  this.createUser()
+  // //  emailLogin()
+  //   // AccessToken.getCurrentAccessToken().then(
+  //   //   (data) => {
+  //   //     console.log(data);
+  //   //     if (data.accessToken) {
+  //   //       this.login();
+  //   //     }
+  //   //   },
+  //   // );
+  // }
 
   createUser = () => {
     firebase.auth().signInWithEmailAndPassword('q@live.se', '123456').then(() => {
@@ -108,13 +138,9 @@ export class Login extends Component {
   //   });
   }
 
-  goToUserSetup() {
-    Actions.createProfile();
-  }
-
   handleNewUser(saveData) {
     this.saveToRedux(saveData);
-    this.goToUserSetup();
+    goToUserSetup();
   }
 
   saveToRedux = (saveData) => {
@@ -131,8 +157,7 @@ export class Login extends Component {
     });
   }
 
-  login() {
-    console.log('in login');
+  login = () => {
     const auth = firebase.auth();
     const provider = firebase.auth.FacebookAuthProvider;
       AccessToken.getCurrentAccessToken()
@@ -153,10 +178,10 @@ export class Login extends Component {
   render() {
   return (
     <View style={styles.containerView}>
-      <Image style={{height: 250, width: 250}} source={Wingman} />
-      <Text style={{fontSize: 22, marginBottom: 30, marginTop: 60}}>Meet your future wingman today</Text>
-      <Text style={{fontSize: 18, color: 'gray', marginLeft: 30, marginRight: 30, justifyContent: 'center', textAlign: 'center'}}> Find the wingmans that are best for your own personality and availability.</Text>
-      <View style={{marginTop: 30}}>
+      <Image style={styles.logo} source={Wingman} />
+      <Text style={styles.headerText}>Meet your future wingman today</Text>
+      <Text style={styles.paragraph}> Find the wingmans that are best for your own personality and availability.</Text>
+      <View style={styles.loginButtonView}>
         <LoginButton onLoginFinished={this.login} />
       </View>
     </View>
@@ -166,5 +191,3 @@ export class Login extends Component {
 
 
 export default connect(mapStateToProps)(Login);
-
-const longText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla  pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
